@@ -1,0 +1,83 @@
+﻿@model eTicaretSitesi.MvcWebUI.Models.SifreSifirlaViewModel
+@{
+    ViewBag.Title = "Şifremi Unuttum";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h3 class="text-center mb-4 text-primary">🔐 Şifre Sıfırlama</h3>
+
+                    @if (!Model.KodGonderildi && !Model.KodDogruMu)
+                    {
+                        using (Html.BeginForm("SifreSifirlaMailGonder", "hesap", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            <div class="mb-3">
+                                @Html.LabelFor(m => m.Email)
+                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Kod Gönder</button>
+                        }
+                    }
+
+                    @if (Model.KodGonderildi && !Model.KodDogruMu)
+                    {
+                        using (Html.BeginForm("SifreSifirlaKodDogrula", "hesap", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(m => m.Email)
+                            @Html.HiddenFor(m => m.KodGonderildi)
+
+                            <div class="mb-3">
+                                <label>Kod (E-posta ile gelen):</label>
+                                @Html.TextBoxFor(m => m.GirilenKod, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.GirilenKod, "", new { @class = "text-danger" })
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">Kodu Doğrula</button>
+                        }
+                    }
+
+                    @if (Model.KodDogruMu)
+                    {
+                        using (Html.BeginForm("SifreSifirlaSifreGuncelle", "hesap", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(m => m.Email)
+                            @Html.HiddenFor(m => m.KodGonderildi)
+                            @Html.HiddenFor(m => m.KodDogruMu)
+
+                            <div class="mb-3">
+                                @Html.LabelFor(m => m.YeniSifre)
+                                @Html.PasswordFor(m => m.YeniSifre, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.YeniSifre, "", new { @class = "text-danger" })
+                            </div>
+
+                            <div class="mb-3">
+                                @Html.LabelFor(m => m.YeniSifreTekrar)
+                                @Html.PasswordFor(m => m.YeniSifreTekrar, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.YeniSifreTekrar, "", new { @class = "text-danger" })
+                            </div>
+
+                            <button type="submit" class="btn btn-dark w-100">Şifreyi Güncelle</button>
+                        }
+                    }
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger mt-3">
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <div>@error.ErrorMessage</div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,84 @@
+﻿@model IEnumerable<eTicaretSitesi.MvcWebUI.Models.kullaniciSiparis>
+@* AŞAĞIDAKİ SATIR HATAYI ÇÖZER: Enum'ın olduğu namespace'i ekliyoruz *@
+@using eTicaretSitesi.MvcWebUI.Entity
+
+@{
+    ViewBag.Title = "Siparişlerim";
+}
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm rounded-3">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fa fa-box"></i> Siparişlerim</h4>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Sipariş No</th>
+                                <th>Tarih</th>
+                                <th>Toplam</th>
+                                <th>Durum</th>
+                                @* YENİ EKLENEN SÜTUN: *@
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Any())
+                            {
+                                <tr>
+                                    @* Colspan sayısını artırdık çünkü yeni sütun ekledik *@
+                                    <td colspan="5" class="text-center text-muted py-4">
+                                        Henüz bir siparişiniz bulunmamaktadır.
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@item.SiparisNumarasi</td>
+                                        <td>@item.SiparisTarihi.ToShortDateString()</td>
+                                        <td>@item.Toplam.ToString("C2")</td>
+                                        <td>
+                                            <span class="badge badge-pill badge-info">@item.siparisDurum</span>
+                                        </td>
+
+                                        @* İPTAL VE İADE BUTONLARI *@
+                                        <td>
+                                            @if (item.siparisDurum == EnumsiparisDurum.SiparisAlındı)
+                                            {
+                                                // NOT: 'SiparisDurumGuncelle' action'ı hangi Controller'daysa (Örn: Account, Home, Sepet)
+                                                // "Account" yazan yeri ona göre değiştirin.
+                                                using (Html.BeginForm("SiparisDurumGuncelle", "sepet", new { id = item.Id }, FormMethod.Post))
+                                                {
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Siparişi iptal etmek istediğinize emin misiniz?')">İptal Et</button>
+                                                }
+                                            }
+                                            else if (item.siparisDurum == EnumsiparisDurum.KargoyaVerildi || item.siparisDurum == EnumsiparisDurum.TeslimEdildi)
+                                            {
+                                                using (Html.BeginForm("SiparisDurumGuncelle", "sepet", new { id = item.Id }, FormMethod.Post))
+                                                {
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-warning text-white" onclick="return confirm('Ürünü iade etmek istediğinize emin misiniz?')">İade Et</button>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

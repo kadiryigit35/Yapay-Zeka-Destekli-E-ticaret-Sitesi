@@ -1,0 +1,40 @@
+﻿<button id="toggleTheme" class="btn btn-dark ml-2" title="Temayı Değiştir">
+    <i class="fas fa-moon"></i>
+</button>
+
+<script>
+    // Bu scriptin sayfa içinde birden fazla kez yüklenmesini ve çalışmasını engellemek için
+    // bir kontrol mekanizması ekliyoruz.
+    if (typeof themeToggleButtonInitialized === 'undefined') {
+        const themeToggleButtonInitialized = true;
+
+        const toggleBtn = document.getElementById('toggleTheme');
+        const icon = toggleBtn.querySelector('i');
+
+        // Temayı uygula fonksiyonu
+        const applyTheme = (isDark) => {
+            if (isDark) {
+                document.body.classList.add('dark-theme');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                document.body.classList.remove('dark-theme');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        };
+
+        // Butona tıklandığında temayı değiştir ve tercihi kaydet
+        toggleBtn.addEventListener('click', function () {
+            const isDarkNow = document.body.classList.toggle('dark-theme');
+            localStorage.setItem('darkTheme', isDarkNow);
+            applyTheme(isDarkNow);
+        });
+
+        // Sayfa yüklendiğinde kayıtlı tema tercihini uygula
+        window.addEventListener('load', function () {
+            const isDarkStored = localStorage.getItem('darkTheme') === 'true';
+            applyTheme(isDarkStored);
+        });
+    }
+</script>

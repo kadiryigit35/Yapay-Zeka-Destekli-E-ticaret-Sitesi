@@ -1,0 +1,248 @@
+﻿/* ======================================================================== */
+/* ======================== DARK TEMA STİLLERİ ============================ */
+/* ======================================================================== */
+
+/* --- Genel Ayarlar --- */
+body.dark-theme {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+    body.dark-theme .navbar {
+        background-color: #1a1a1a !important;
+    }
+
+    body.dark-theme .nav-link,
+    body.dark-theme .navbar-brand {
+        color: #e0e0e0 !important;
+    }
+
+    body.dark-theme .btn-primary {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    body.dark-theme .form-control {
+        background-color: #2a2a2a;
+        color: #e0e0e0;
+        border-color: #555;
+    }
+
+    body.dark-theme .card {
+        background-color: #2c2c2c !important;
+        color: #e0e0e0 !important;
+    }
+
+        body.dark-theme .card a {
+            color: #e0e0e0 !important;
+        }
+
+        body.dark-theme .card .card-header {
+            background-color: #1f1f1f !important;
+            color: #ffffff !important;
+        }
+
+        body.dark-theme .card input,
+        body.dark-theme .card button {
+            background-color: #3a3a3a !important;
+            color: #ffffff !important;
+            border-color: #555555 !important;
+        }
+
+            body.dark-theme .card input::placeholder {
+                color: #cccccc !important;
+            }
+
+    body.dark-theme .btn-outline-primary {
+        color: #ffffff !important;
+        border-color: #555555 !important;
+    }
+
+        body.dark-theme .btn-outline-primary:hover {
+            background-color: #555555 !important;
+        }
+
+    body.dark-theme .list-group-item {
+        background-color: #2c2c2c !important;
+        color: #e0e0e0 !important;
+        border-color: #444 !important;
+    }
+
+        body.dark-theme .list-group-item.active {
+            background-color: #0d6efd !important;
+            color: #fff !important;
+        }
+
+    body.dark-theme .table {
+        color: #e0e0e0 !important;
+    }
+
+        body.dark-theme .table thead th {
+            background-color: #1a1a1a !important;
+            border-color: #444 !important;
+            color: #fff;
+        }
+
+        body.dark-theme .table td,
+        body.dark-theme .table th {
+            border-color: #444 !important;
+        }
+
+    body.dark-theme .modal-content {
+        background-color: #2c2c2c !important;
+        color: #e0e0e0 !important;
+    }
+
+    body.dark-theme .modal-header,
+    body.dark-theme .modal-footer {
+        border-color: #444 !important;
+    }
+
+    body.dark-theme .btn-close {
+        filter: invert(1) !important;
+    }
+
+    body.dark-theme .alert {
+        background-color: #3a3a3a !important;
+        color: #e0e0e0 !important;
+        border-color: #555 !important;
+    }
+
+    /* --- Chatbot --- */
+    body.dark-theme #chatbot-toggle {
+        background-color: #0056b3;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    }
+
+    body.dark-theme #chatbot-container {
+        background: #1f1f1f;
+        border: 1px solid #3a3a3a;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    body.dark-theme #chatbot-header {
+        background: #004d99;
+    }
+
+    body.dark-theme #chatbot-messages {
+        background-color: #1f1f1f;
+    }
+
+    body.dark-theme .kai, body.dark-theme .user {
+        color: #121212;
+    }
+
+    /* --- Yönetim Paneli (_AdminLayout) --- */
+    body.dark-theme .sidebar {
+        background-color: #1a1a1a;
+        box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
+    }
+
+        body.dark-theme .sidebar .nav-link {
+            color: #adb5bd;
+        }
+
+            body.dark-theme .sidebar .nav-link:hover {
+                color: #fff;
+            }
+
+            body.dark-theme .sidebar .nav-link.active {
+                color: #fff;
+                background-color: #007bff;
+            }
+
+    body.dark-theme .main-content {
+        background-color: #121212;
+    }
+    /* ======================================================================== */
+    /* =========== DETAY SAYFASI AÇIKLAMA/YORUM SEKME DÜZELTMESİ =========== */
+    /* ======================================================================== */
+
+    /* Sekme butonlarının genel rengi ve çerçevesi */
+    body.dark-theme .nav-tabs .nav-link {
+        color: #adb5bd; /* Pasif yazı rengi - Soluk Gri */
+        border-color: #444;
+    }
+
+        /* Aktif olan sekme butonu */
+        body.dark-theme .nav-tabs .nav-link.active {
+            background-color: #007bff; /* Arka plan - Mavi */
+            color: #ffffff !important; /* Yazı rengi - Beyaz */
+            border-color: #007bff;
+        }
+
+    /* Sekmelerin içeriğinin bulunduğu alan */
+    body.dark-theme .tab-content {
+        background-color: #2c2c2c; /* Kart ile aynı arka plan rengi */
+        color: #e0e0e0; /* Genel yazı rengi */
+    }
+
+    /* Yorum listesi içindeki çerçeveler */
+    body.dark-theme .list-group-flush .list-group-item {
+        background-color: transparent; /* Arka planı transparan yap */
+        border-color: #444;
+    }
+    /* ======================================================================== */
+    /* ================== NAVBAR DROPDOWN MENÜ DÜZELTMESİ =================== */
+    /* ======================================================================== */
+
+    /* Açılır menünün ana kutusu */
+    body.dark-theme .dropdown-menu {
+        background-color: #2c2c2c; /* Arka plan - Koyu Gri */
+        border: 1px solid #444;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, .5);
+    }
+
+    /* Menü içindeki linkler (a etiketleri) */
+    body.dark-theme .dropdown-item {
+        color: #e0e0e0; /* Yazı rengi - Açık Gri */
+    }
+
+        /* Linklerin üzerine gelindiğinde */
+        body.dark-theme .dropdown-item:hover {
+            background-color: #3a3a3a; /* Arka plan - Biraz daha açık gri */
+            color: #ffffff; /* Yazı rengi - Beyaz */
+        }
+
+    /* Menüdeki ayırıcı çizgi */
+    body.dark-theme .dropdown-divider {
+        border-top: 1px solid #444;
+    }
+    /* --- Dark Theme Şifre Güncelleme Alanı --- */
+    body.dark-theme #sifreGuncellemeAlani {
+        background-color: #2c2c2c; /* Kart arka planı ile uyumlu */
+        color: #e0e0e0;
+    }
+
+        body.dark-theme #sifreGuncellemeAlani .card-footer {
+            background-color: #2c2c2c !important;
+            color: #e0e0e0 !important;
+            border-color: #444 !important;
+        }
+
+        body.dark-theme #sifreGuncellemeAlani input {
+            background-color: #3a3a3a !important;
+            color: #e0e0e0 !important;
+            border-color: #555 !important;
+        }
+
+        body.dark-theme #sifreGuncellemeAlani label {
+            color: #e0e0e0 !important;
+        }
+
+        body.dark-theme #sifreGuncellemeAlani .btn-success {
+            background-color: #198754;
+            border-color: #198754;
+            color: #fff;
+        }
+
+            body.dark-theme #sifreGuncellemeAlani .btn-success:hover {
+                background-color: #157347;
+                border-color: #146c43;
+            }
+
+        body.dark-theme #sifreGuncellemeAlani .card-footer.bg-light {
+            background-color: #2c2c2c !important; /* Dark tema arka planı */
+            color: #e0e0e0 !important;
+            border-color: #444 !important;
+        }

@@ -1,0 +1,140 @@
+﻿@model eTicaretSitesi.MvcWebUI.Models.sepet
+@{
+    ViewBag.Title = "Alışveriş Sepeti";
+}
+
+<div class="container py-5">
+    <h2 class="text-center mb-4">Alışveriş Sepeti</h2>
+    <hr />
+    @if (Model.sepetOgeleri.Count > 0)
+    {
+        @Html.AntiForgeryToken()
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" style="width: 120px;">Ürün</th>
+                                        <th scope="col"></th>
+                                        <th scope="col">Fiyat</th>
+                                        <th scope="col" class="text-center">Adet</th>
+                                        <th scope="col" class="text-end">Toplam</th>
+                                        <th scope="col" class="text-center">İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cart-items-container">
+                                    @foreach (var item in Model.sepetOgeleri)
+                                    {
+                                        <tr id="urun-@item.urun.Id">
+                                            <td>
+                                                <img src="~/Upload/@item.urun.Resim" class="img-fluid rounded" style="width: 100px;" alt="@item.urun.Adi">
+                                            </td>
+                                            <td>
+                                                <h6 class="mb-0">@item.urun.Adi</h6>
+                                            </td>
+                                            <td>@item.urun.Fiyat.ToString("c")</td>
+                                            <td>
+                                                <div class="input-group justify-content-center" style="width: 120px;">
+                                                    <button class="btn btn-outline-secondary btn-sm btn-update-cart" type="button" data-id="@item.urun.Id" data-islem="azalt">-</button>
+                                                    <input type="text" class="form-control text-center" value="@item.Adet" id="adet-@item.urun.Id" readonly>
+                                                    <button class="btn btn-outline-secondary btn-sm btn-update-cart" type="button" data-id="@item.urun.Id" data-islem="arttir">+</button>
+                                                </div>
+                                            </td>
+                                            <td class="text-end" id="toplam-@item.urun.Id">@((item.urun.Fiyat * item.Adet).ToString("c"))</td>
+                                            <td class="text-center">
+                                                <button class="btn btn-danger btn-sm btn-update-cart" data-id="@item.urun.Id" data-islem="sil">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Sipariş Özeti</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Ara Toplam
+                                <span id="sepet-ara-toplam">@Model.sepetTutari().ToString("c")</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center fw-bold">
+                                Toplam Tutar
+                                <span id="sepet-genel-toplam">@Model.sepetTutari().ToString("c")</span>
+                            </li>
+                        </ul>
+                        <a href="/sepet/teslimat" class="btn btn-primary w-100 mt-3">Sepeti Onayla</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div id="empty-cart-message" class="alert alert-warning text-center" role="alert">
+            <i class="fa fa-shopping-cart"></i> Alışveriş Sepetinizde Ürün Bulunmamaktadır.
+            <br />
+            <a href="/Home/UrunListesi" class="btn btn-primary mt-3">Alışverişe Başla</a>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+$(document).ready(function () {
+    // Dinamik olarak eklenen butonlar için event delegation kullanıyoruz.
+    $(document).on('click', '.btn-update-cart', function () {
+        var button = $(this);
+        var id = button.data('id');
+        var islem = button.data('islem');
+        var token = $('input[name="__RequestVerificationToken"]').val();
+
+        $.ajax({
+            url: '@Url.Action("SepetiGuncelle", "Sepet")',
+            type: 'POST',
+            data: {
+                __RequestVerificationToken: token,
+                Id: id,
+                islem: islem
+            },
+            success: function (response) {
+                if (response.success) {
+                    $('#adet-' + id).val(response.adet);
+                    $('#toplam-' + id).text(response.urunToplam);
+                    $('#sepet-ara-toplam').text(response.sepetToplam);
+                    $('#sepet-genel-toplam').text(response.sepetToplam);
+                    // Navbar'daki sepet özetini güncelle
+                    $('#cart-summary-count').text('(' + response.sepetOgeSayisi + ')');
+
+
+                    if (islem === 'sil' || (islem === 'azalt' && response.adet === 0)) {
+                        $('#urun-' + id).fadeOut(300, function() { $(this).remove(); });
+                    }
+
+                    if(response.sepetOgeSayisi === 0) {
+                        // Sepet boşaldıysa mesaj göster
+                        setTimeout(function() {
+                             $('.row').html('<div id="empty-cart-message" class="alert alert-warning text-center" role="alert"><i class="fa fa-shopping-cart"></i> Alışveriş Sepetinizde Ürün Bulunmamaktadır.<br /><a href="/Home/UrunListesi" class="btn btn-primary mt-3">Alışverişe Başla</a></div>');
+                        }, 300);
+                    }
+                } else {
+                    // Hata durumunda kullanıcıyı bilgilendir (örn: Toast, alert)
+                    alert(response.message);
+                }
+            },
+            error: function () {
+                 alert("Bir hata oluştu. Lütfen tekrar deneyin.");
+            }
+        });
+    });
+});
+    </script>
+}

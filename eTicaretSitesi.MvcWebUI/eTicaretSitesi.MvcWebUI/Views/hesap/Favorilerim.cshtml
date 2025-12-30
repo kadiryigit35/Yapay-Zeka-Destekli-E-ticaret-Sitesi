@@ -1,0 +1,53 @@
+@model List<eTicaretSitesi.MvcWebUI.Entity.urun>
+@{
+    ViewBag.Title = "Favorilerim";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Favorilerim</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            Henüz favori ürününüz yok.
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var urun in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm border-0 rounded h-100">
+                        <a href="@Url.Action("detaylar", "Home", new { id = urun.Id })">
+                            <img src="~/Upload/@(urun.Resim ?? "default.jpg")" class="card-img-top" alt="@urun.Adi" />
+                        </a>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">@urun.Adi</h5>
+                            <p class="card-text text-muted flex-grow-1">
+                                @(urun.Aciklama.Length > 80 ? urun.Aciklama.Substring(0,77) + "..." : urun.Aciklama)
+                            </p>
+                            <div class="mt-auto d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-primary">
+                                    <i class="fa-solid fa-turkish-lira-sign"></i> @urun.Fiyat.ToString("N2")
+                                </span>
+                                <div class="btn-group">
+                                    <a href="@Url.Action("detaylar", "Home", new { id = urun.Id })" class="btn btn-sm btn-outline-primary">
+                                        Ýncele
+                                    </a>
+                                    @using (Html.BeginForm("FavoridenKaldir", "Hesap", FormMethod.Post, new { @class = "ml-2" }))
+                                    {
+                                        @Html.Hidden("urunId", urun.Id)
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fa fa-heart-broken"></i> Kaldýr
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

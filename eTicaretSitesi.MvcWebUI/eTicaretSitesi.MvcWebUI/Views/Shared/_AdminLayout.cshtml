@@ -1,0 +1,117 @@
+﻿<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Yönetim Paneli - eTicaret</title>
+
+    <script src="https://kit.fontawesome.com/f0dc84823d.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/style.css" />
+    <link rel="stylesheet" href="~/css/dark-theme.css" />
+    <!-- YENİ: Yönetim paneli için özel CSS dosyası eklendi -->
+    <link rel="stylesheet" href="~/css/admin-layout.css" />
+    <style>
+        /* Bu sayfaya özel stiller burada kalabilir, genel olanlar admin-layout.css'e taşındı */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            padding: 48px 0 0;
+        }
+
+        .sidebar-sticky {
+            position: relative;
+            top: 0;
+            height: calc(100vh - 48px);
+            padding-top: .5rem;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .main-content {
+            margin-left: 220px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- YENİ: Navbar'a "admin-nav" sınıfı eklendi -->
+    <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow admin-nav">
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Yönetim Paneli</a>
+        <div class="w-100"></div>
+        <ul class="navbar-nav px-3 d-flex flex-row align-items-center">
+            <li class="nav-item text-nowrap">
+                @if (Request.IsAuthenticated)
+                {
+                    <span class="text-white mr-3">Hoşgeldin, @ViewBag.UserName</span>
+                    <a class="nav-link d-inline" href="/hesap/cikisYap">Çıkış Yap</a>
+                }
+            </li>
+            <li class="nav-item text-nowrap">
+                @Html.Partial("_ThemePartial")
+            </li>
+        </ul>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block sidebar">
+                <div class="sidebar-sticky">
+                    <ul class="nav flex-column">
+                        @if (User.IsInRole("admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "kategori" ? "active" : "")" href="/kategori/Index">
+                                    <i class="fa fa-cogs"></i> Kategori Yönetimi
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "KullaniciYonetimi" && ViewContext.RouteData.Values["action"].ToString() == "Index" ? "active" : "")" href="/KullaniciYonetimi/Index">
+                                    <i class="fa fa-users"></i> Kullanıcı Yönetimi
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "KullaniciYonetimi" && ViewContext.RouteData.Values["action"].ToString() == "Sikayetler" ? "active" : "")" href="/KullaniciYonetimi/Sikayetler">
+                                    <i class="fa fa-flag"></i> Yorum Şikayetleri
+                                </a>
+                            </li>
+                        }
+                        @if (User.IsInRole("satici"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "urun" ? "active" : "")" href="/urun/Index">
+                                    <i class="fa fa-boxes"></i> Ürün Yönetimi
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "Satici" && ViewContext.RouteData.Values["action"].ToString() == "siparisYonet" ? "active" : "")" href="/Satici/siparisYonet">
+                                    <i class="fa fa-receipt"></i> Sipariş Yönetimi
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "Satici" && ViewContext.RouteData.Values["action"].ToString() == "SaticiProfilDuzenle" ? "active" : "")" href="/Satici/SaticiProfilDuzenle">
+                                    <i class="fa fa-store"></i> Satıcı Profili
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </nav>
+
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4 main-content">
+                <div class="container-fluid">
+                    @RenderBody()
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

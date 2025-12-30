@@ -1,0 +1,44 @@
+@model eTicaretSitesi.MvcWebUI.Entity.satici
+
+@{
+    ViewBag.Title = "Satýcý Profil Düzenle";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <!-- DÜZELTME: bg-primary ve text-white sýnýflarý kaldýrýldý.
+             Renkler artýk temanýn CSS dosyasý tarafýndan yönetilecek. -->
+        <div class="card-header">
+            <h3 class="mb-0">Satýcý Profilini Düzenle</h3>
+        </div>
+        <div class="card-body">
+            @using (Html.BeginForm("SaticiProfilDuzenle", "Satici", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.Id)
+
+                <div class="form-group">
+                    <label for="Adi">Satýcý Adý</label>
+                    @Html.TextBoxFor(m => m.Adi, new { @class = "form-control", placeholder = "Satýcý adýnýzý girin", id = "Adi" })
+                </div>
+
+                <div class="form-group">
+                    <label for="Hakkinda">Satýcý Hakkýnda</label>
+                    @Html.TextAreaFor(m => m.Hakkinda, 5, 50, new { @class = "form-control", placeholder = "Kendiniz hakkýnda kýsa bilgi yazýn", id = "Hakkinda" })
+                </div>
+
+                <div class="form-group">
+                    <label>Profil Resmi</label><br />
+                    <img src="@(string.IsNullOrEmpty(Model.Resim) ? "/Upload/default.jpg" : "https://localhost:44366/upload/" + Model.Resim)" class="rounded mb-2" style="width: 150px; height:150px; object-fit:cover; border:1px solid #ddd;" alt="Profil Resmi" /><br />
+                    <input type="file" name="Resim" class="form-control-file" />
+                </div>
+
+                <button type="submit" class="btn btn-success w-100 mt-3">Güncelle</button>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- NOT: Bu sayfadaki harici Bootstrap linkleri ve scriptleri kaldýrýldý
+     çünkü _AdminLayout zaten gerekli dosyalarý içeriyor. -->

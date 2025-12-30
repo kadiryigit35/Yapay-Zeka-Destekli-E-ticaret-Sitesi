@@ -1,0 +1,35 @@
+﻿@using Microsoft.AspNet.Identity
+
+<ul class="navbar-nav ml-auto">
+    @if (Request.IsAuthenticated)
+    {
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <img src="@(ViewBag.ProfilResmi != "default.jpg" ? "https://localhost:44366/upload/" + ViewBag.ProfilResmi : "/Upload/default.jpg")" class="rounded-circle mr-2" style="width: 30px; height: 30px; object-fit: cover;" />
+                <span>@ViewBag.UserName</span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="userDropdown">
+
+                @* Standart Kullanıcı Linkleri - Artık tüm roller için ortak *@
+                <a class="dropdown-item" href="/hesap/siparislerim"><i class="fa fa-box"></i> Siparişlerim</a>
+                <a class="dropdown-item" href="/hesap/favorilerim"><i class="fa fa-heart"></i> Favorilerim</a>
+                <a class="dropdown-item" href="/hesap/profilDuzenle"><i class="fa fa-user-edit"></i> Profili Düzenle</a>
+                <a class="dropdown-item" href="/Hesap/KayitliAdreslerim"><i class="fa fa-address-book"></i> Kayıtlı Adresler</a>
+                <a class="dropdown-item" href="/Hesap/KayitliKartlarim"><i class="fa fa-credit-card"></i> Kartlarım</a>
+
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="/hesap/cikisYap"><i class="fa fa-sign-out-alt"></i> Çıkış Yap</a>
+
+            </div>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link" href="/hesap/girisYap"><i class="fa fa-sign-in-alt"></i> Giriş Yap</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/hesap/kayitOl"><i class="fa fa-user-plus"></i> Kayıt Ol</a>
+        </li>
+    }
+</ul>

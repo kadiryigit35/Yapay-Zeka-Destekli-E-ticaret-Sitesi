@@ -1,0 +1,158 @@
+@model List<eTicaretSitesi.MvcWebUI.Entity.kayitliOdemeYontemi>
+@{
+    ViewBag.Title = "Kayýtlý Kartlarým";
+}
+
+<div class="container py-5">
+    <h2 class="text-center mb-4">Kayýtlý Kartlarým</h2>
+
+    <div class="text-end mb-3">
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addKartModal">
+            <i class="fa fa-plus"></i> Yeni Kart Ekle
+        </button>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center" role="alert">
+            Henüz kayýtlý kartýnýz yok.
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Kart Sahibi</th>
+                                <th>Kart Numarasý</th>
+                                <th>Son Kullanma Tarihi</th>
+                                <th class="text-center">Ýþlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var kart in Model)
+                            {
+                                <tr>
+                                    <td>@kart.KartSahibi</td>
+                                    <td>@kart.KartNumarasi</td>
+                                    <td>@kart.SKT</td>
+                                    <td class="text-center">
+                                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editKartModal" data-id="@kart.Id" data-kartsahibi="@kart.KartSahibi" data-kartnumarasi="@kart.KartNumarasi" data-skt="@kart.SKT" data-cvv="@kart.CVV">Düzenle</button>
+                                        <form action="@Url.Action("DeleteKart", "hesap")" method="post" style="display:inline;" onsubmit="return confirm('Bu kartý silmek istediðinize emin misiniz?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@kart.Id" />
+                                            <button type="submit" class="btn btn-danger btn-sm">Sil</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+
+<div class="modal fade" id="addKartModal" tabindex="-1" aria-labelledby="addKartModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addKartModalLabel">Yeni Kart Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("AddKart", "hesap", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label">Kart Sahibi</label>
+                        <input type="text" class="form-control" name="KartSahibi" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Kart Numarasý</label>
+                        <input type="text" class="form-control" name="KartNumarasi" required />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Son Kullanma Tarihi (AA/YY)</label>
+                            <input type="text" class="form-control" name="SKT" placeholder="AA/YY" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">CVV</label>
+                            <input type="text" class="form-control" name="CVV" required />
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success">Kaydet</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ýptal</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="editKartModal" tabindex="-1" aria-labelledby="editKartModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editKartModalLabel">Kartý Düzenle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("EditKart", "hesap", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="Id" id="editKartId" />
+                    <div class="mb-3">
+                        <label for="editKartSahibi" class="form-label">Kart Sahibi</label>
+                        <input type="text" class="form-control" id="editKartSahibi" name="KartSahibi" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="editKartNumarasi" class="form-label">Kart Numarasý</label>
+                        <input type="text" class="form-control" id="editKartNumarasi" name="KartNumarasi" required />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="editSKT" class="form-label">Son Kullanma Tarihi (AA/YY)</label>
+                            <input type="text" class="form-control" id="editSKT" name="SKT" placeholder="AA/YY" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="editCVV" class="form-label">CVV</label>
+                            <input type="text" class="form-control" id="editCVV" name="CVV" required />
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success">Kaydet</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ýptal</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var editModal = document.getElementById('editKartModal');
+            editModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var id = button.getAttribute('data-id');
+                var kartSahibi = button.getAttribute('data-kartsahibi');
+                var kartNumarasi = button.getAttribute('data-kartnumarasi');
+                var skt = button.getAttribute('data-skt');
+                var cvv = button.getAttribute('data-cvv');
+
+                document.getElementById('editKartId').value = id;
+                document.getElementById('editKartSahibi').value = kartSahibi;
+                document.getElementById('editKartNumarasi').value = kartNumarasi;
+                document.getElementById('editSKT').value = skt;
+                document.getElementById('editCVV').value = cvv;
+            });
+        });
+    </script>
+}

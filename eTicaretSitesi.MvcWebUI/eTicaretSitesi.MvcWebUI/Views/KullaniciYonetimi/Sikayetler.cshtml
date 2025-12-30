@@ -1,0 +1,180 @@
+@{
+    ViewBag.Title = "Yorum Þikayetleri";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2 class="mt-4">Yorum Þikayetleri</h2>
+<p>Kullanýcýlar tarafýndan þikayet edilen ve henüz iþlem yapýlmamýþ yorumlar aþaðýda listelenmiþtir.</p>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Yorum Ýçeriði</th>
+                <th>Yorumu Yapan</th>
+                <th>Þikayet Eden</th>
+
+                <th>Tarih</th>
+                <th>Ýþlemler</th>
+            </tr>
+        </thead>
+        <tbody id="sikayet-tablosu">
+            <tr><td colspan="5" class="text-center">Yükleniyor...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="banModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="banModalTitle">Kullanýcýyý Yasakla</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Ýptal</button>
+                <button type="button" class="btn btn-danger" onclick="confirmBan()">Yasakla</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+    // DÝKKAT: Buradaki port numarasýný kendi API projenizin port numarasý ile deðiþtirin!
+const apiUrl = "https://localhost:44366";
+
+    function loadSikayetler() {
+        $.ajax({
+            url: apiUrl + "/api/admin/sikayetler",
+            type: "GET",
+            success: function (data) {
+                let html = "";
+                const bekleyenSikayetler = data.filter(report => !report.IslemYapildiMi);
+
+
+             if (!bekleyenSikayetler || bekleyenSikayetler.length === 0) {
+                    html = '<tr><td colspan="5" class="text-center">Bekleyen þikayet bulunamadý.</td></tr>';
+                } else {
+                    $.each(bekleyenSikayetler, function (index, report) {
+
+           let tarih = new Date(report.SikayetTarihi).toLocaleString('tr-TR');
+                        let yorumlariGorUrl = `@Url.Action("YorumlariGor", "KullaniciYonetimi")?kullaniciAdi=${encodeURIComponent(report.YorumuYapanKullanici)}`;
+
+                        html += `<tr>
+
+     <td><em>"${report.YorumIcerik}"</em></td>
+                                    <td>${report.YorumuYapanKullanici}</td>
+                                    <td>${report.SikayetEdenKullanici}</td>
+
+             <td>${tarih}</td>
+                                    <td>
+                                        <div class="btn-group">
+
+                                  <a class="btn btn-sm btn-info" href="${yorumlariGorUrl}">Yorumlarý Gör</a>
+                                            <button class="btn btn-sm btn-secondary" onclick="ignoreReport(${report.SikayetId})">Yoksay</button>
+                                                                           <button class="btn btn-sm btn-danger" onclick="showBanModal('${report.YorumuYapanKullaniciId}', '${report.YorumuYapanKullanici}', ${report.YorumId})">Yasakla</button>
+                                        </div>
+
+            </td>
+                                 </tr>`;
+});
+                }
+                $("#sikayet-tablosu").html(html);
+},
+            error: function () {
+                $("#sikayet-tablosu").html('<tr><td colspan="5" class="text-center text-danger">Veriler yüklenemedi. API baðlantýnýzý ve yetkinizi kontrol edin.</td></tr>');
+}
+        });
+    }
+
+    function ignoreReport(reportId) {
+        if (confirm("Bu þikayeti yoksaymak ve iþlendi olarak iþaretlemek istediðinizden emin misiniz?")) {
+            $.ajax({
+                url: `${apiUrl}/api/admin/sikayet-yoksay/${reportId}`,
+                type: "POST",
+                success: function (response) {
+
+                   alert(response.message || "Þikayet iþlendi olarak iþaretlendi.");
+                    loadSikayetler(); // Listeyi yenile
+                },
+                error: function () {
+
+  alert("Hata: Ýþlem baþarýsýz oldu.");
+                }
+            });
+}
+    }
+
+    // GÜNCELLENDÝ: Fonksiyon artýk yorumId alýyor ve modal içeriðini ona göre oluþturuyor
+    function showBanModal(userId, username, yorumId) {
+        if (!userId || userId === 'null') {
+            alert('Bu kullanýcý bilgisine ulaþýlamadý, genel listeden yasaklamayý deneyin.');
+return;
+        }
+        $('#banModal .modal-title').text(username + ' kullanýcýsýný yasakla');
+const modalBody = `
+            <input type="hidden" id="banUserId" value="${userId}" />
+            <input type="hidden" id="banYorumId" value="${yorumId}" />
+            <div class="form-group">
+                <label for="banReason">Yasaklama Nedeni</label>
+                <textarea class="form-control" id="banReason" rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+
+           <label for="banDuration">Yasaklama Süresi (Gün)</label>
+                <input type="number" class="form-control" id="banDuration" placeholder="Kalýcý için boþ býrakýn">
+            </div>
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="deleteReportedComment">
+                <label class="form-check-label" for="deleteReportedComment">Þikayet edilen bu yorumu sil</label>
+            </div>`;
+        $('#banModal .modal-body').html(modalBody);
+        $('#banModal').modal('show');
+}
+
+    function confirmBan() {
+        const userId = $('#banUserId').val();
+const reason = $('#banReason').val();
+        if (!reason) {
+            alert('Yasaklama nedeni boþ býrakýlamaz.');
+return;
+        }
+
+        // GÜNCELLENDÝ: banData objesi artýk SilinecekYorumId'yi gönderiyor.
+        const banData = {
+            KullaniciId: userId,
+            Sebep: reason,
+            SureGun: $('#banDuration').val() ?
+parseInt($('#banDuration').val()) : null,
+            SilinecekYorumId: $('#deleteReportedComment').is(':checked') ? parseInt($('#banYorumId').val()) : null
+        };
+$.ajax({
+            url: apiUrl + "/api/admin/banla",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(banData),
+            success: function (response) {
+                $('#banModal').modal('hide');
+
+ alert(response.message || "Kullanýcý baþarýyla yasaklandý.");
+                loadSikayetler(); // Þikayet listesini de yenileyelim
+            },
+            error: function () {
+                alert("Hata: Yasaklama iþlemi baþarýsýz oldu.");
+            }
+        });
+}
+
+    $(document).ready(function () {
+        loadSikayetler();
+    });
+    </script>
+}

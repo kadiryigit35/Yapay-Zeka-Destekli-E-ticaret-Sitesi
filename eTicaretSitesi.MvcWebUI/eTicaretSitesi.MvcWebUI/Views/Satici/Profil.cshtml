@@ -1,0 +1,182 @@
+@model eTicaretSitesi.MvcWebUI.Entity.satici
+
+@{
+    ViewBag.Title = "Satýcý Profili";
+    var urunler = ViewBag.Urunler as List<eTicaretSitesi.MvcWebUI.Models.urunModel>
+                   ?? new List<eTicaretSitesi.MvcWebUI.Models.urunModel>();
+    bool isAuthenticated = User.Identity.IsAuthenticated;
+}
+
+<style>
+    body {
+        display: block !important;
+        height: auto !important;
+    }
+
+    .seller-card {
+        margin-bottom: 2rem;
+    }
+
+        .seller-card img {
+            max-height: 250px;
+            object-fit: cover;
+        }
+
+    .seller-products {
+        margin-top: 20px;
+    }
+    /* Puanlama yýldýzlarý için CSS */
+    .rating-summary .fa-star {
+        color: #ffc107;
+    }
+
+    .rating-summary .fa-star-o {
+        color: #ddd;
+    }
+
+    .rating-stars {
+        display: inline-flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        font-size: 28px;
+        color: #ddd;
+        cursor: pointer;
+    }
+
+        .rating-stars .fa-star:hover,
+        .rating-stars .fa-star:hover ~ .fa-star {
+            color: #ffc107;
+        }
+
+    .alert-container {
+        min-height: 50px;
+        margin-top: 15px;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="card shadow-sm border-0 rounded-3 seller-card">
+        <div class="row g-0">
+            <div class="col-md-4 text-center p-3">
+                <img src="~/Upload/@(string.IsNullOrEmpty(Model.Resim) ? "default.png" : Model.Resim)"
+                     class="img-fluid rounded-start"
+                     alt="@Model.Adi" />
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h2 class="card-title">@Model.Adi</h2>
+
+                    <div class="d-flex align-items-center my-2 rating-summary">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            if (i <= Model.OrtalamaPuan)
+                            {<i class="fa fa-star"></i> }
+                            else if (i - 0.5 <= Model.OrtalamaPuan)
+                            { <i class="fa fa-star-half-o"></i> }
+                            else
+                            { <i class="fa fa-star-o"></i>}
+                        }
+                    <span class="ms-2" id="satici-ortalama-puan-text">
+                        @Model.OrtalamaPuan.ToString("F1") (@Model.ToplamPuanSayisi Deðerlendirme)
+                    </span>
+                    </div>
+
+                    <p class="card-text mt-3">@Model.Hakkinda</p>
+
+                    @if (isAuthenticated)
+                    {
+                        <div class="mt-3">
+                            <strong>Puan Ver:</strong>
+                            <div class="rating-stars" data-satici-id="@Model.Id">
+                                <i class="fa fa-star" data-value="5"></i>
+                                <i class="fa fa-star" data-value="4"></i>
+                                <i class="fa fa-star" data-value="3"></i>
+                                <i class="fa fa-star" data-value="2"></i>
+                                <i class="fa fa-star" data-value="1"></i>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="alert-container text-start"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="mb-4 seller-products">Satýcýya Ait Ürünler (@urunler.Count)</h3>
+
+    @if (!urunler.Any())
+    {
+        <div class="alert alert-info">Bu satýcýya ait ürün bulunamadý.</div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var urun in urunler)
+            {
+                <div class="col-sm-6 col-md-4 col-lg-3 mb-4">
+                    @Html.Partial("~/Views/Shared/_urungoruntuleme.cshtml", urun)
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@* AntiForgeryToken'ý alabilmek için gizli bir form ekleyebiliriz *@
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "antiForgeryForm", @class = "d-none" }))
+{
+    @Html.AntiForgeryToken()
+}
+
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            function showAlert(message, type = 'danger') {
+                // ***************************************************************
+                // DÜZELTME: 'alert-dismissible' sýnýfý ve kapatma butonu kaldýrýldý.
+                // ***************************************************************
+                var alert = $('<div class="alert alert-' + type + ' fade show" role="alert" style="max-width: 400px; padding: 10px; font-size: 14px;">' + message + '</div>');
+                $('.alert-container').html(alert);
+                setTimeout(function () {
+                    alert.fadeOut('slow', function () { $(this).remove(); });
+                }, 3500);
+            }
+
+            // Satýcý Puanlama Yýldýzlarýna Týklama Olayý
+            $('.rating-stars .fa-star').on('click', function () {
+                if (!@isAuthenticated.ToString().ToLower()) {
+                    showAlert('Puan vermek için giriþ yapmalýsýnýz.');
+                    return;
+                }
+
+                var puan = $(this).data('value');
+                var saticiId = $(this).parent().data('satici-id');
+                var antiForgeryToken = $('#antiForgeryForm input[name="__RequestVerificationToken"]').val();
+
+                $.ajax({
+                    url: '@Url.Action("SaticiPuanla", "Home")',
+                    type: 'POST',
+                    data: {
+                        saticiId: saticiId,
+                        puanDegeri: puan,
+                        __RequestVerificationToken: antiForgeryToken
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            showAlert(response.message, 'info');
+                            $('#satici-ortalama-puan-text').text(response.ortalamaPuan + ' (' + response.toplamPuan + ' Deðerlendirme)');
+                        } else {
+                            showAlert(response.message, 'warning');
+                        }
+                    },
+                    error: function () {
+                        showAlert('Bir hata oluþtu, lütfen daha sonra tekrar deneyin.');
+                    }
+                });
+            });
+        });
+    </script>
+}

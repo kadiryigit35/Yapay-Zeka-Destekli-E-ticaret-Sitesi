@@ -1,0 +1,17 @@
+# Visual Studio ve .NET Gereksizleri
+.vs/
+bin/
+obj/
+packages/
+*.user
+*.suo
+
+# Flutter Gereksizleri
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Genel
+.DS_Store
+Thumbs.db

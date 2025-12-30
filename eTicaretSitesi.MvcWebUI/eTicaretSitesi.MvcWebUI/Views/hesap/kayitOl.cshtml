@@ -1,0 +1,71 @@
+﻿@model eTicaretSitesi.MvcWebUI.Models.kayitOl
+
+@{
+    ViewBag.Title = "Kayıt Ol";
+}
+
+<div class="container mt-5 pb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm rounded-3 border-0">
+                <div class="card-body">
+                    <h3 class="text-center mb-4 text-primary">
+                        <i class="fa-solid fa-user-plus"></i> Yeni Kullanıcı Kaydı
+                    </h3>
+
+                    @using (Html.BeginForm())
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger small" })
+
+                        <div class="mb-3">
+                            @Html.LabelFor(m => m.Adi, htmlAttributes: new { @class = "form-label" })
+                            @Html.EditorFor(m => m.Adi, new { htmlAttributes = new { @class = "form-control", @placeholder = "Adınız" } })
+                            @Html.ValidationMessageFor(m => m.Adi, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <div class="mb-3">
+                            @Html.LabelFor(m => m.Soyadi, htmlAttributes: new { @class = "form-label" })
+                            @Html.EditorFor(m => m.Soyadi, new { htmlAttributes = new { @class = "form-control", @placeholder = "Soyadınız" } })
+                            @Html.ValidationMessageFor(m => m.Soyadi, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <div class="mb-3">
+                            @Html.LabelFor(m => m.KullaniciAdi, htmlAttributes: new { @class = "form-label" })
+                            @Html.EditorFor(m => m.KullaniciAdi, new { htmlAttributes = new { @class = "form-control", @placeholder = "Kullanıcı Adı" } })
+                            @Html.ValidationMessageFor(m => m.KullaniciAdi, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <div class="mb-3">
+                            @Html.LabelFor(m => m.Email, htmlAttributes: new { @class = "form-label" })
+                            @Html.EditorFor(m => m.Email, new { htmlAttributes = new { @class = "form-control", @placeholder = "E-posta" } })
+                            @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <div class="mb-3">
+                            @Html.LabelFor(m => m.Sifre, htmlAttributes: new { @class = "form-label" })
+                            @Html.EditorFor(m => m.Sifre, new { htmlAttributes = new { @class = "form-control", @placeholder = "Şifre", type = "password" } })
+                            @Html.ValidationMessageFor(m => m.Sifre, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <div class="mb-3">
+                            @Html.LabelFor(m => m.SifreTekrar, htmlAttributes: new { @class = "form-label" })
+                            @Html.EditorFor(m => m.SifreTekrar, new { htmlAttributes = new { @class = "form-control", @placeholder = "Şifre Tekrar", type = "password" } })
+                            @Html.ValidationMessageFor(m => m.SifreTekrar, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fa-solid fa-user-check"></i> Kayıt Ol
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>

@@ -1,0 +1,193 @@
+@model eTicaretSitesi.MvcWebUI.Identity.kullanici
+
+@{
+    ViewBag.Title = "Profil Düzenle";
+}
+
+<style>
+    /* Stil kodlarý öncekiyle ayný, sadece açýlýr alan için bir geçiþ efekti eklendi */
+    .profile-pic-wrapper {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        margin: auto;
+    }
+
+    .profile-pic {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 4px solid #f8f9fa;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .upload-button {
+        position: absolute;
+        bottom: 5px;
+        right: 15px;
+        height: 40px;
+        width: 40px;
+        background-color: #0d6efd;
+        border-radius: 50%;
+        border: 3px solid #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        transition: all .3s ease;
+    }
+
+        .upload-button:hover {
+            background-color: #0a58ca;
+            transform: scale(1.1);
+        }
+
+    #ProfilResmi {
+        display: none;
+    }
+
+    /* JavaScript ile kontrol edilecek açýlýr alan için stil ve animasyon */
+    #sifreGuncellemeAlani {
+        overflow: hidden;
+        transition: max-height 0.5s ease-in-out;
+        max-height: 0; /* Baþlangýçta kapalý */
+    }
+</style>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h4 class="mb-0">Profil Ayarlarý</h4>
+                </div>
+                <div class="card-body p-4">
+                    @if (TempData["ProfilMesaj"] != null)
+                    {
+                        <div class="alert alert-success">@TempData["ProfilMesaj"]</div>
+                    }
+
+                    @using (Html.BeginForm("ProfilDuzenle", "hesap", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.Id)
+
+                        <div class="row align-items-center">
+                            <div class="col-md-4 text-center mb-4 mb-md-0">
+                                <div class="profile-pic-wrapper">
+                                    <img id="profilePicPreview" class="profile-pic" src="~/Upload/@(string.IsNullOrEmpty(Model.ProfilResmi) ? "default-user.jpg" : Model.ProfilResmi)" />
+                                    <div class="upload-button" onclick="document.getElementById('ProfilResmi').click();" title="Resmi Deðiþtir">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-camera-fill" viewBox="0 0 16 16"><path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" /><path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0z" /></svg>
+                                    </div>
+                                    <input type="file" name="ProfilResmi" id="ProfilResmi" accept="image/*" />
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="Adi" class="form-label">Ad</label>
+                                        @Html.TextBoxFor(m => m.Adi, new { @class = "form-control form-control-lg", id = "Adi" })
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="Soyadi" class="form-label">Soyad</label>
+                                        @Html.TextBoxFor(m => m.Soyadi, new { @class = "form-control form-control-lg", id = "Soyadi" })
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="Email" class="form-label">E-posta Adresi</label>
+                                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control form-control-lg", id = "Email", @readonly = "readonly", disabled = "disabled" })
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="my-4" />
+                        <div class="d-flex justify-content-end align-items-center">
+                            <button class="btn btn-outline-secondary me-2" type="button" id="sifreAcKapatBtn">
+                                Þifre Deðiþtir
+                            </button>
+                            <button type="submit" class="btn btn-primary px-4">Deðiþiklikleri Kaydet</button>
+                        </div>
+                    }
+                </div>
+
+                <div id="sifreGuncellemeAlani">
+                    <div class="card-footer bg-light p-4">
+                        <h5 class="mb-3">Güvenlik Ayarlarý</h5>
+                        @if (TempData["SifreMesaj"] != null)
+                        {
+                            <div class="alert alert-success">@TempData["SifreMesaj"]</div>
+                        }
+                        @if (TempData["SifreHata"] != null)
+                        {
+                            <div class="alert alert-danger">@TempData["SifreHata"]</div>
+                        }
+                        @using (Html.BeginForm("SifreGuncelle", "hesap", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(m => m.Id)
+
+                            <div class="mb-3">
+                                <label class="form-label">Mevcut Þifre</label>
+                                <input type="password" name="MevcutSifre" class="form-control" required />
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Yeni Þifre</label>
+                                    <input type="password" name="YeniSifre" class="form-control" required />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Yeni Þifre (Tekrar)</label>
+                                    <input type="password" name="YeniSifreTekrar" class="form-control" required />
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-success">Þifreyi Güncelle</button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggleButton = document.getElementById('sifreAcKapatBtn');
+        const passwordSection = document.getElementById('sifreGuncellemeAlani');
+
+        // Butona týklandýðýnda þifre alanýný aç/kapat
+        toggleButton.addEventListener('click', function () {
+            // Alanýn mevcut yüksekliðini kontrol et
+            if (passwordSection.style.maxHeight) {
+                passwordSection.style.maxHeight = null; // Kapat
+            } else {
+                // Alanýn tam yüksekliðini hesaplayýp ayarla (animasyon için)
+                passwordSection.style.maxHeight = passwordSection.scrollHeight + "px"; // Aç
+            }
+        });
+
+        // Profil resmi seçildiðinde önizleme yap
+        const profilResmiInput = document.getElementById('ProfilResmi');
+        if (profilResmiInput) {
+            profilResmiInput.addEventListener('change', function (event) {
+                const preview = document.getElementById('profilePicPreview');
+                if (event.target.files && event.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        preview.setAttribute('src', e.target.result);
+                    }
+                    reader.readAsDataURL(event.target.files[0]);
+                }
+            });
+        }
+
+        // Eðer bir þifre hatasý veya mesajý varsa, þifre alanýný otomatik olarak aç
+        if ("@TempData["SifreHata"]" || "@TempData["SifreMesaj"]") {
+            passwordSection.style.maxHeight = passwordSection.scrollHeight + "px";
+        }
+    });
+    </script>
+}

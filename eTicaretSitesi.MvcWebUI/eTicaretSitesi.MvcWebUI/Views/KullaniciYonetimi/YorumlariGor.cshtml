@@ -1,0 +1,45 @@
+@{
+    ViewBag.Title = ViewBag.KullaniciAdi + " Yorumlarý";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2 class="mt-4">@ViewBag.KullaniciAdi <small class="text-muted">Kullanýcýsýnýn Yorumlarý</small></h2>
+<hr />
+
+<div id="yorumListesi">
+    <p class="text-center">Yorumlar yükleniyor...</p>
+</div>
+
+@section Scripts {
+    <script>
+    const apiUrl = "https://localhost:44366";
+    const kullaniciAdi = "@ViewBag.KullaniciAdi";
+
+    $(document).ready(function() {
+        $.ajax({
+            url: `${apiUrl}/api/admin/kullanici-yorumlari/${kullaniciAdi}`,
+            type: "GET",
+            success: function(data) {
+                let html = "";
+                if (!data || data.length === 0) {
+                    html = '<div class="alert alert-info">Bu kullanýcýnýn hiç yorumu bulunmuyor.</div>';
+                } else {
+                    html = '<ul class="list-group">';
+                    $.each(data, function(index, yorum) {
+                        let tarih = new Date(yorum.Tarih).toLocaleString('tr-TR');
+                        html += `<li class="list-group-item">
+                                    <p>${yorum.Icerik}</p>
+                                    <small class="text-muted">${tarih}</small>
+                                 </li>`;
+                    });
+                    html += '</ul>';
+                }
+                $("#yorumListesi").html(html);
+            },
+            error: function() {
+                $("#yorumListesi").html('<div class="alert alert-danger">Yorumlar yüklenirken bir hata oluþtu.</div>');
+            }
+        });
+    });
+    </script>
+}

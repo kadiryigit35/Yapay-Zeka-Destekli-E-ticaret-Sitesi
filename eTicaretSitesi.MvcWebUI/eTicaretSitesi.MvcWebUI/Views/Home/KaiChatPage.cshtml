@@ -1,0 +1,715 @@
+﻿
+@{
+    ViewBag.Title = "Kai ile Sohbet";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+
+<div class="kai-fullpage-container">
+
+    <div class="kai-history-panel">
+        <div class="history-header">
+            <h4>Sohbet Geçmişi</h4>
+            <button id="kai-start-new-chat-btn" title="Yeni Sohbet Başlat">
+                <i class="fas fa-plus"></i> Yeni Sohbet
+            </button>
+        </div>
+        <ul id="kai-history-list">
+        </ul>
+    </div>
+
+    <div class="kai-chat-panel">
+        <div class="chat-header">
+            <h5 id="kai-active-chat-title">Yeni Sohbet</h5>
+            <button id="kai-delete-chat-btn" title="Bu Sohbeti Sil" style="display: none;">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </div>
+        <div id="kai-chat-messages" aria-live="polite">
+        </div>
+        <div id="kai-chat-input-container">
+            <input type="text" id="kai-chat-input" placeholder="Kai'ye bir şey yazın..." autocomplete="off" />
+            <button id="kai-chat-send-btn" aria-label="Gönder"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+</div>
+<style>
+    /* Sohbet balonunu bu sayfada gizle */
+    #kai-bubble-toggle {
+        display: none !important;
+    }
+</style>
+@section scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const historyListEl = document.getElementById("kai-history-list");
+            const messagesEl = document.getElementById("kai-chat-messages");
+            const inputEl = document.getElementById("kai-chat-input");
+            const sendBtn = document.getElementById("kai-chat-send-btn");
+            const newChatBtn = document.getElementById("kai-start-new-chat-btn");
+            const deleteChatBtn = document.getElementById("kai-delete-chat-btn");
+            const activeChatTitleEl = document.getElementById("kai-active-chat-title");
+
+            const KAI_HISTORY_KEY = 'kaiChatHistory';
+            const API_URL = "https://localhost:44366/api/kai/getreply"; // API Adresiniz
+
+            let allConversations = [];
+            let activeConversationId = null;
+            let isLoading = false;
+
+            const initialMessage = {
+                role: "assistant",
+                content: "Merhaba! Ben Kai, alışveriş asistanınız. Size nasıl yardımcı olabilirim? 😊"
+            };
+
+            function generateId() {
+                return `chat_${new Date().getTime()}`;
+            }
+
+            function loadConversations() {
+                try {
+                    const stored = localStorage.getItem(KAI_HISTORY_KEY);
+                    allConversations = stored ? JSON.parse(stored) : [];
+                } catch (e) {
+                    console.error("Geçmiş yüklenemedi:", e);
+                    allConversations = [];
+                }
+            }
+
+            function saveConversations() {
+                try {
+                    localStorage.setItem(KAI_HISTORY_KEY, JSON.stringify(allConversations));
+                } catch (e) {
+                    console.error("Geçmiş kaydedilemedi:", e);
+                }
+            }
+
+            function getActiveConversation() {
+                return allConversations.find(c => c.id === activeConversationId) || null;
+            }
+
+            function renderHistoryList() {
+                historyListEl.innerHTML = "";
+                if (allConversations.length === 0) {
+                    historyListEl.innerHTML = "<li class='empty'>Geçmiş sohbet bulunamadı.</li>";
+                    return;
+                }
+
+                [...allConversations].reverse().forEach(convo => {
+                    const li = document.createElement("li");
+                    li.className = convo.id === activeConversationId ? "active" : "";
+                    li.dataset.id = convo.id;
+                    li.textContent = convo.title;
+                    li.onclick = () => selectConversation(convo.id);
+                    historyListEl.appendChild(li);
+                });
+            }
+
+            function renderActiveChat() {
+                messagesEl.innerHTML = "";
+                const convo = getActiveConversation();
+
+                if (!convo) {
+                    activeChatTitleEl.textContent = "Yeni Sohbet";
+                    deleteChatBtn.style.display = "none";
+                    appendMessage(initialMessage.role, initialMessage.content);
+                    return;
+                }
+
+                activeChatTitleEl.textContent = convo.title;
+                deleteChatBtn.style.display = "block";
+                convo.messages.forEach(msg => {
+                    if (msg.role === "assistant" && msg.products && msg.products.length > 0) {
+                        appendProductMessage(msg.content, msg.products);
+                    } else {
+                        appendMessage(msg.role, msg.content);
+                    }
+                });
+                scrollToBottom();
+            }
+
+            function appendMessage(role, content) {
+                const div = document.createElement("div");
+                div.className = role === "assistant" ? "kai" : "user";
+                div.innerHTML = `<strong>${role === 'assistant' ? 'Kai' : 'Sen'}:</strong><br/>${content.replace(/\n/g, '<br/>')}`;
+                messagesEl.appendChild(div);
+            }
+
+            function appendProductMessage(reply, products) {
+                let productHtml = `
+                <div class="product-carousel-container">
+                    <button class="carousel-nav prev">❮</button>
+                    <div class="product-carousel">
+                        <div class="product-track">
+                            ${products.map(p => `
+                                <div class="product-card">
+                                    <a href="${p.DetayUrl}" target="_blank" title="${p.Adi}">
+                                        <div class="product-image" style="background-image: url('${p.Resim || ''}')"></div>
+                                        <div class="product-info">
+                                            <strong>${p.Adi}</strong>
+                                            <span>${p.Fiyat} ₺</span>
+                                        </div>
+                                    </a>
+                                </div>
+                            `).join("")}
+                        </div>
+                    </div>
+                    <button class="carousel-nav next">❯</button>
+                </div>`;
+
+                const div = document.createElement("div");
+                div.className = "kai";
+                div.innerHTML = `<strong>Kai:</strong><br/>${reply}<br/>${productHtml}`;
+                messagesEl.appendChild(div);
+
+                setTimeout(() => {
+                    const carousel = div.querySelector(".product-carousel");
+                    const nextBtn = div.querySelector(".carousel-nav.next");
+                    const prevBtn = div.querySelector(".carousel-nav.prev");
+                    if (carousel && nextBtn && prevBtn) {
+                        nextBtn.onclick = () => carousel.scrollBy({ left: 160, behavior: 'smooth' });
+                        prevBtn.onclick = () => carousel.scrollBy({ left: -160, behavior: 'smooth' });
+                    }
+                }, 100);
+            }
+
+            function showLoading(show) {
+                let loading = messagesEl.querySelector('.loading');
+                if (show) {
+                    if (!loading) {
+                        loading = document.createElement("div");
+                        loading.className = "kai loading";
+                        loading.innerHTML = "<strong>Kai:</strong><br/><span></span><span></span><span></span>";
+                        messagesEl.appendChild(loading);
+                        scrollToBottom();
+                    }
+                } else if (loading) {
+                    loading.remove();
+                }
+            }
+
+            function scrollToBottom() {
+                messagesEl.scrollTop = messagesEl.scrollHeight;
+            }
+
+            function selectConversation(id) {
+                if (id === activeConversationId) return;
+                activeConversationId = id;
+                renderHistoryList();
+                renderActiveChat();
+                inputEl.focus();
+            }
+
+            function startNewConversation() {
+                activeConversationId = null;
+                renderHistoryList();
+                renderActiveChat();
+                inputEl.focus();
+            }
+
+            async function handleSendMessage() {
+                const text = inputEl.value.trim();
+                if (!text || isLoading) return;
+
+                isLoading = true;
+                inputEl.value = "";
+                inputEl.disabled = true;
+                sendBtn.disabled = true;
+
+                let currentConvo = getActiveConversation();
+
+                if (!currentConvo) {
+                    const newId = generateId();
+                    const newTitle = text.length > 30 ? text.substring(0, 30) + "..." : text;
+
+                    currentConvo = {
+                        id: newId,
+                        title: newTitle,
+                        messages: [initialMessage, { role: "user", content: text }]
+                    };
+                    allConversations.push(currentConvo);
+                    activeConversationId = newId;
+
+                    renderHistoryList();
+                    renderActiveChat();
+                } else {
+                    currentConvo.messages.push({ role: "user", content: text });
+                    appendMessage("user", text);
+                    scrollToBottom();
+                }
+
+                showLoading(true);
+
+                const historyForApi = currentConvo.messages
+                    .slice(0, -1)
+                    .map(m => ({ role: m.role, content: m.content }));
+
+                try {
+                    const response = await fetch(API_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            message: text,
+                            history: historyForApi
+                        })
+                    });
+
+                    if (!response.ok) throw new Error(`API Hatası: ${response.status}`);
+
+                    const data = await response.json();
+
+                    const assistantMessage = {
+                        role: "assistant",
+                        content: data.reply,
+                        products: data.products || []
+                    };
+
+                    currentConvo.messages.push(assistantMessage);
+
+                    showLoading(false);
+                    if (assistantMessage.products.length > 0) {
+                        appendProductMessage(assistantMessage.content, assistantMessage.products);
+                    } else {
+                        appendMessage(assistantMessage.role, assistantMessage.content);
+                    }
+                    scrollToBottom();
+
+                    saveConversations();
+
+                } catch (e) {
+                    console.error(e);
+                    showLoading(false);
+                    appendMessage("assistant", "Bir hata oluştu, lütfen tekrar deneyin.");
+                    scrollToBottom();
+                    currentConvo.messages.pop();
+                } finally {
+                    isLoading = false;
+                    inputEl.disabled = false;
+                    sendBtn.disabled = false;
+                    inputEl.focus();
+                }
+            }
+
+            function handleDeleteConversation() {
+                if (!activeConversationId) return;
+
+                if (confirm("Bu sohbeti silmek istediğinizden emin misiniz?")) {
+                    allConversations = allConversations.filter(c => c.id !== activeConversationId);
+                    saveConversations();
+                    startNewConversation();
+                }
+            }
+
+            inputEl.addEventListener("keypress", (e) => {
+                if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSendMessage(); }
+            });
+            sendBtn.addEventListener("click", handleSendMessage);
+            newChatBtn.addEventListener("click", startNewConversation);
+            deleteChatBtn.addEventListener("click", handleDeleteConversation);
+
+            loadConversations();
+            renderHistoryList();
+            renderActiveChat();
+            inputEl.focus();
+        });
+    </script>
+}
+
+<style>
+    .kai-fullpage-container {
+        display: flex;
+        height: calc(100vh - 120px);
+        min-height: 500px;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-top: 20px;
+    }
+
+    .kai-history-panel {
+        width: 280px;
+        background: #f4f7f6;
+        border-right: 1px solid #ddd;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .history-header {
+        padding: 15px;
+        border-bottom: 1px solid #ddd;
+    }
+
+        .history-header h4 {
+            margin: 0 0 15px 0;
+        }
+
+    #kai-start-new-chat-btn {
+        width: 100%;
+        padding: 10px;
+        background: var(--kai-primary);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 15px;
+    }
+
+        #kai-start-new-chat-btn:hover {
+            background: var(--kai-primary-dark);
+        }
+
+    #kai-history-list {
+        list-style: none;
+        margin: 0;
+        padding: 10px;
+        overflow-y: auto;
+        flex: 1;
+    }
+
+        #kai-history-list li {
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: background 0.2s;
+        }
+
+            #kai-history-list li:hover {
+                background: #e9ecef;
+            }
+
+            #kai-history-list li.active {
+                background: var(--kai-primary);
+                color: white;
+            }
+
+            #kai-history-list li.empty {
+                color: #888;
+                text-align: center;
+                cursor: default;
+            }
+
+    .kai-chat-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-header {
+        padding: 15px 20px;
+        border-bottom: 1px solid #ddd;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #fdfdfd;
+    }
+
+        .chat-header h5 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+    #kai-delete-chat-btn {
+        background: none;
+        border: none;
+        color: #dc3545;
+        font-size: 16px;
+        cursor: pointer;
+        opacity: 0.7;
+    }
+
+        #kai-delete-chat-btn:hover {
+            opacity: 1;
+        }
+
+    #kai-chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+
+        #kai-chat-messages .kai,
+        #kai-chat-messages .user {
+            padding: 10px 14px;
+            margin-bottom: 10px;
+            border-radius: 18px;
+            max-width: clamp(200px, 65%, 600px);
+            line-height: 1.5;
+            /* Kelimelerin garip bir şekilde bölünmesini engelle */
+            word-wrap: break-word;
+        }
+
+        #kai-chat-messages .kai {
+            background-color: #e9f0ff;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        #kai-chat-messages .user {
+            background-color: #dcf8c6;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+            #kai-chat-messages .kai strong,
+            #kai-chat-messages .user strong {
+                display: block;
+                margin-bottom: 4px;
+                font-weight: 600;
+            }
+
+        #kai-chat-messages .kai.loading span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--kai-primary);
+            margin: 0 2px;
+            animation: kai-loading-dots 1s infinite ease-in-out;
+        }
+
+            #kai-chat-messages .kai.loading span:nth-child(2) {
+                animation-delay: 0.2s;
+            }
+
+            #kai-chat-messages .kai.loading span:nth-child(3) {
+                animation-delay: 0.4s;
+            }
+
+    @@keyframes kai-loading-dots {
+        0%, 100% {
+            opacity: 0.3;
+            transform: scale(0.7);
+        }
+
+        50% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    #kai-chat-messages .product-carousel-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        max-width: 480px;
+        margin-top: 10px;
+    }
+
+    #kai-chat-messages .carousel-nav {
+        background: rgba(255,255,255,0.8);
+        border: 1px solid #ddd;
+        border-radius: 50%;
+        font-size: 18px;
+        cursor: pointer;
+        color: var(--kai-primary);
+        width: 32px;
+        height: 32px;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        #kai-chat-messages .carousel-nav.prev {
+            left: -15px;
+        }
+
+        #kai-chat-messages .carousel-nav.next {
+            right: -15px;
+        }
+
+    #kai-chat-messages .product-carousel {
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        display: flex;
+        flex: 1;
+        padding: 5px 0;
+    }
+
+        #kai-chat-messages .product-carousel::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        #kai-chat-messages .product-carousel::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 5px;
+        }
+
+    #kai-chat-messages .product-track {
+        display: flex;
+        gap: 10px;
+    }
+
+    #kai-chat-messages .product-card {
+        flex: 0 0 auto;
+        width: 150px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+        #kai-chat-messages .product-card a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+    #kai-chat-messages .product-image {
+        width: 100%;
+        height: 110px;
+        background-size: cover;
+        background-position: center;
+        border-bottom: 1px solid #eee;
+    }
+
+    #kai-chat-messages .product-info {
+        font-size: 13px;
+        padding: 8px;
+        height: 60px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+        #kai-chat-messages .product-info strong {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #kai-chat-messages .product-info span {
+            color: var(--kai-primary);
+            font-weight: bold;
+        }
+
+    #kai-chat-input-container {
+        border-top: 1px solid #ddd;
+        padding: 15px 20px;
+        display: flex;
+        background: #f9f9f9;
+    }
+
+    #kai-chat-input {
+        border: 1px solid #ccc;
+        padding: 12px 15px;
+        width: 100%;
+        outline: none;
+        font-size: 15px;
+        border-radius: 25px;
+        margin-right: 15px;
+    }
+
+    #kai-chat-send-btn {
+        background: var(--kai-primary);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        cursor: pointer;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+        #kai-chat-send-btn:hover {
+            background: var(--kai-primary-dark);
+        }
+
+        #kai-chat-send-btn:disabled,
+        #kai-chat-input:disabled {
+            background: #ccc;
+        }
+
+    /* =================== DARK TEMA =================== */
+    body.dark-theme .kai-fullpage-container {
+        background: #1e1e1e;
+        border-color: #3a3a3a;
+        color: #e0e0e0;
+    }
+
+    body.dark-theme .kai-history-panel {
+        background: #121212;
+        border-color: #3a3a3a;
+    }
+
+    body.dark-theme .history-header {
+        border-color: #3a3a3a;
+    }
+
+    body.dark-theme #kai-history-list li {
+        color: #adb5bd;
+    }
+
+        body.dark-theme #kai-history-list li:hover {
+            background: #2a2d31;
+        }
+
+        body.dark-theme #kai-history-list li.active {
+            background: var(--kai-primary);
+            color: white;
+        }
+
+        body.dark-theme #kai-history-list li.empty {
+            color: #6c757d;
+        }
+
+    body.dark-theme .chat-header {
+        background: #121212;
+        border-color: #3a3a3a;
+    }
+
+    body.dark-theme #kai-chat-input-container {
+        background: #121212;
+        border-color: #3a3a3a;
+    }
+
+    body.dark-theme #kai-chat-input {
+        background-color: #2a2a2a;
+        color: #e0e0e0;
+        border-color: #555;
+    }
+
+    body.dark-theme #kai-chat-messages {
+        background-color: #1e1e1e;
+    }
+
+        body.dark-theme #kai-chat-messages .kai {
+            background-color: #2a2d31;
+            color: #ffffff;
+        }
+
+        body.dark-theme #kai-chat-messages .user {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+
+            body.dark-theme #kai-chat-messages .kai strong,
+            body.dark-theme #kai-chat-messages .user strong {
+                color: #ffffff;
+            }
+
+        body.dark-theme #kai-chat-messages .product-card {
+            background: #2c2c2c;
+            border-color: #444;
+        }
+
+        body.dark-theme #kai-chat-messages .carousel-nav {
+            background: rgba(44, 44, 44, 0.8);
+            border-color: #555;
+        }
+</style>

@@ -1,0 +1,45 @@
+﻿/* ======================================================================== */
+/* ============== YÖNETİM PANELİ (_AdminLayout) STİLLERİ ================== */
+/* ======================================================================== */
+
+/* --- AÇIK TEMA (VARSAYILAN) --- */
+
+/* Üst Navigasyon Barı */
+body:not(.dark-theme) .navbar.admin-nav {
+    background-color: #ffffff !important; /* Arka planı beyaz yap */
+    box-shadow: 0 2px 4px rgba(0,0,0,.1) !important;
+}
+
+    /* Navigasyon Barındaki Yazılar ("Hoşgeldin" vb.) */
+    body:not(.dark-theme) .navbar.admin-nav .nav-link,
+    body:not(.dark-theme) .navbar.admin-nav .text-white {
+        color: #343a40 !important; /* Yazı rengini koyu yap */
+    }
+
+/* Sol Menü (Sidebar) */
+body:not(.dark-theme) .sidebar {
+    background-color: #f8f9fa; /* Arka planı açık gri yap */
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+
+    body:not(.dark-theme) .sidebar .nav-link {
+        color: #333; /* Link rengini koyu yap */
+    }
+
+        body:not(.dark-theme) .sidebar .nav-link:hover {
+            color: #007bff; /* Link hover rengini mavi yap */
+        }
+
+        body:not(.dark-theme) .sidebar .nav-link.active {
+            color: #fff;
+            background-color: #007bff;
+        }
+
+
+/* --- KOYU TEMA --- */
+
+/* Navigasyon Barındaki Yazılar ("Hoşgeldin" vb.) */
+body.dark-theme .navbar.admin-nav .nav-link,
+body.dark-theme .navbar.admin-nav .text-white {
+    color: #ffffff !important; /* Yazı rengini beyaz yap */
+}

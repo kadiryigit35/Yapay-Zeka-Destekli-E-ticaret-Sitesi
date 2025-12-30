@@ -1,0 +1,78 @@
+@model List<eTicaretSitesi.MvcWebUI.Entity.siparisYolu>
+
+@using eTicaretSitesi.MvcWebUI.Entity
+@using System.ComponentModel.DataAnnotations
+@using System.Reflection
+
+@{
+    ViewBag.Title = "Sipariþ Yönetimi";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    // Enum Display adýný alan yardýmcý metot
+    string GetEnumDisplayName(Enum enumValue)
+    {
+        return enumValue.GetType()
+                        .GetMember(enumValue.ToString())
+                        .First()
+                        .GetCustomAttribute<DisplayAttribute>()?
+                        .Name ?? enumValue.ToString();
+    }
+}
+
+<div class="container mt-4">
+    <h2>Sipariþ Yönetimi</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            Henüz ürünlerinize ait bir sipariþ yok.
+        </div>
+    }
+    else
+    {
+        <table class="table table-bordered table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Sipariþ No</th>
+                    <th>Ürün</th>
+                    <th>Adet</th>
+                    <th>Birim Fiyat</th>
+                    <th>Toplam Fiyat</th>
+                    <th>Sipariþ Tarihi</th>
+                    <th>Durum</th>
+                    <th>Durum Güncelle</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var detay in Model)
+                {
+                    <tr>
+                        <td>@detay.Siparis.SiparisNumarasi</td>
+                        <td>@detay.urun.Adi</td>
+                        <td>@detay.Adet</td>
+                        <td>@( (detay.Adet > 0) ? (detay.Fiyat / detay.Adet).ToString("C") : "–" )</td>  <!-- Birim fiyat -->
+                        <td>@detay.Fiyat.ToString("C")</td>  <!-- Toplam fiyat -->
+                        <td>@detay.Siparis.SiparisTarihi.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@GetEnumDisplayName(detay.Siparis.siparisDurum)</td>
+                        <td>
+                            @using (Html.BeginForm("SiparisDurumGuncelle", "Satici", FormMethod.Post))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.Hidden("siparisId", detay.SiparisId)
+
+                                <select name="yeniDurum" class="form-control form-control-sm" onchange="this.form.submit()">
+                                    @foreach (var durum in Enum.GetValues(typeof(EnumsiparisDurum)).Cast<EnumsiparisDurum>())
+                                    {
+                                        <option value="@durum" @(detay.Siparis.siparisDurum == durum ? "selected" : "")>
+                                            @GetEnumDisplayName(durum)
+                                        </option>
+                                    }
+                                </select>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

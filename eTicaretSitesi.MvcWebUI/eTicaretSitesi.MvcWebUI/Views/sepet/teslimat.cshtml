@@ -1,0 +1,218 @@
+﻿@model eTicaretSitesi.MvcWebUI.Models.TeslimatOdemeViewModel
+@{
+    ViewBag.Title = "Teslimat ve Ödeme";
+}
+
+<div class="container py-5">
+    <h2 class="text-center mb-4">Teslimat ve Ödeme Bilgileri</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <!-- Tab Navigation -->
+            <ul class="nav nav-tabs" id="checkoutTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="address-tab" data-bs-toggle="tab" href="#address" role="tab">1. Teslimat Adresi</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" id="payment-tab" data-bs-toggle="tab" href="#payment" role="tab">2. Ödeme Bilgileri</a>
+                </li>
+            </ul>
+
+            @using (Html.BeginForm("teslimat", "sepet", FormMethod.Post, new { @id = "checkoutForm" }))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="tab-content mt-4">
+                    <!-- Address Tab -->
+                    <div class="tab-pane fade show active" id="address" role="tabpanel">
+                        <h4>Teslimat Adresi</h4>
+                        <hr />
+
+                        @if (Model.KayitliAdresler != null && Model.KayitliAdresler.Any())
+                        {
+                            <div class="form-group mb-3">
+                                <label for="SecilenAdresId" class="form-label">Kayıtlı Adresiniz</label>
+                                @Html.DropDownListFor(m => m.SecilenAdresId,
+                                    new SelectList(Model.KayitliAdresler, "Id", "AdresBasligi", Model.SecilenAdresId),
+                                    "Adres Seçiniz...",
+                                    new { @class = "form-control", @id = "SecilenAdresId" })
+                            </div>
+                        }
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="Teslimat_TamAd" class="form-label">Adı Soyadı</label>
+                                @Html.TextBoxFor(m => m.Teslimat.TamAd, new { @class = "form-control", @id = "Teslimat_TamAd" })
+                                @Html.ValidationMessageFor(m => m.Teslimat.TamAd, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="Teslimat_AdresBasligi" class="form-label">Adres Başlığı</label>
+                                @Html.TextBoxFor(m => m.Teslimat.AdresBasligi, new { @class = "form-control", @id = "Teslimat_AdresBasligi" })
+                                @Html.ValidationMessageFor(m => m.Teslimat.AdresBasligi, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="Teslimat_Adres" class="form-label">Adres</label>
+                            @Html.TextBoxFor(m => m.Teslimat.Adres, new { @class = "form-control", @id = "Teslimat_Adres" })
+                            @Html.ValidationMessageFor(m => m.Teslimat.Adres, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="Teslimat_Sehir" class="form-label">Şehir</label>
+                                @Html.TextBoxFor(m => m.Teslimat.Sehir, new { @class = "form-control", @id = "Teslimat_Sehir" })
+                                @Html.ValidationMessageFor(m => m.Teslimat.Sehir, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="Teslimat_Mahalle" class="form-label">Mahalle</label>
+                                @Html.TextBoxFor(m => m.Teslimat.Mahalle, new { @class = "form-control", @id = "Teslimat_Mahalle" })
+                                @Html.ValidationMessageFor(m => m.Teslimat.Mahalle, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="Teslimat_Sokak" class="form-label">Sokak</label>
+                                @Html.TextBoxFor(m => m.Teslimat.Sokak, new { @class = "form-control", @id = "Teslimat_Sokak" })
+                                @Html.ValidationMessageFor(m => m.Teslimat.Sokak, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="Teslimat_Telefon" class="form-label">Telefon</label>
+                                @Html.TextBoxFor(m => m.Teslimat.Telefon, new { @class = "form-control", @type = "tel", @id = "Teslimat_Telefon" })
+                                @Html.ValidationMessageFor(m => m.Teslimat.Telefon, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            @Html.CheckBoxFor(m => m.AdresiKaydet, new { @class = "form-check-input", @id = "chkAdres" })
+                            <label class="form-check-label" for="chkAdres">Adresimi Kaydet</label>
+                        </div>
+
+                        <button type="button" class="btn btn-primary" id="nextToPayment">Sonraki</button>
+                    </div>
+
+                    <!-- Payment Tab -->
+                    <div class="tab-pane fade" id="payment" role="tabpanel">
+                        <h4>Ödeme Bilgileri</h4>
+                        <hr />
+
+                        @if (Model.KayitliOdemeYontemleri != null && Model.KayitliOdemeYontemleri.Any())
+                        {
+                            <div class="form-group mb-3">
+                                <label for="SecilenOdemeId" class="form-label">Kayıtlı Kartlarınız</label>
+                                @Html.DropDownListFor(m => m.SecilenOdemeId,
+                                    new SelectList(Model.KayitliOdemeYontemleri, "Id", "KartSahibi", Model.SecilenOdemeId),
+                                    "Kart Seçiniz...",
+                                    new { @class = "form-control", @id = "SecilenOdemeId" })
+                            </div>
+                        }
+
+                        <div class="mb-3">
+                            <label for="Odeme_KartSahibi" class="form-label">Kart Sahibi</label>
+                            @Html.TextBoxFor(m => m.Odeme.KartSahibi, new { @class = "form-control", @id = "Odeme_KartSahibi" })
+                            @Html.ValidationMessageFor(m => m.Odeme.KartSahibi, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="Odeme_KartNumarasi" class="form-label">Kart Numarası</label>
+                            @Html.TextBoxFor(m => m.Odeme.KartNumarasi, new { @class = "form-control", @id = "Odeme_KartNumarasi" })
+                            @Html.ValidationMessageFor(m => m.Odeme.KartNumarasi, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="Odeme_SonKullanma" class="form-label">Son Kullanma Tarihi (MM/YY)</label>
+                                @Html.TextBoxFor(m => m.Odeme.SonKullanma, new { @class = "form-control", @placeholder = "MM/YY", @id = "Odeme_SonKullanma" })
+                                @Html.ValidationMessageFor(m => m.Odeme.SonKullanma, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="Odeme_Cvc" class="form-label">CVC</label>
+                                @Html.TextBoxFor(m => m.Odeme.Cvc, new { @class = "form-control", @id = "Odeme_Cvc" })
+                                @Html.ValidationMessageFor(m => m.Odeme.Cvc, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            @Html.CheckBoxFor(m => m.OdemeyiKaydet, new { @class = "form-check-input", @id = "chkOdeme" })
+                            <label class="form-check-label" for="chkOdeme">Ödeme Bilgilerimi Kaydet</label>
+                        </div>
+
+                        <button type="button" class="btn btn-secondary me-2" id="backToAddress">Geri</button>
+                        <button type="submit" class="btn btn-success">Siparişi Tamamla</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Address dropdown change event
+            $('#SecilenAdresId').change(function () {
+                var adresId = $(this).val();
+                if (adresId) {
+                    var adres = @Html.Raw(Json.Encode(Model.KayitliAdresler));
+                    var selectedAdres = adres.find(a => a.Id == adresId);
+                    if (selectedAdres) {
+                        $('#Teslimat_TamAd').val(selectedAdres.TamAd);
+                        $('#Teslimat_AdresBasligi').val(selectedAdres.AdresBasligi);
+                        $('#Teslimat_Adres').val(selectedAdres.Adres);
+                        $('#Teslimat_Sehir').val(selectedAdres.Sehir);
+                        $('#Teslimat_Mahalle').val(selectedAdres.Mahalle);
+                        $('#Teslimat_Sokak').val(selectedAdres.Sokak);
+                        $('#Teslimat_PostaKodu').val(selectedAdres.PostaKodu);
+                        $('#Teslimat_Telefon').val(selectedAdres.Telefon);
+                    }
+                } else {
+                    $('#Teslimat_TamAd, #Teslimat_AdresBasligi, #Teslimat_Adres, #Teslimat_Sehir, #Teslimat_Mahalle, #Teslimat_Sokak, #Teslimat_PostaKodu, #Teslimat_Telefon').val('');
+                }
+            });
+
+            // Payment dropdown change event
+            $('#SecilenOdemeId').change(function () {
+                var odemeId = $(this).val();
+                if (odemeId) {
+                    var odeme = @Html.Raw(Json.Encode(Model.KayitliOdemeYontemleri));
+                    var selectedOdeme = odeme.find(o => o.Id == odemeId);
+                    if (selectedOdeme) {
+                        $('#Odeme_KartSahibi').val(selectedOdeme.KartSahibi);
+                        $('#Odeme_KartNumarasi').val(selectedOdeme.KartNumarasi);
+                        $('#Odeme_SonKullanma').val(selectedOdeme.SKT);
+                        $('#Odeme_Cvc').val(selectedOdeme.CVV);
+                    }
+                } else {
+                    $('#Odeme_KartSahibi, #Odeme_KartNumarasi, #Odeme_SonKullanma, #Odeme_Cvc').val('');
+                }
+            });
+
+            // Navigation between tabs
+            $('#nextToPayment').click(function () {
+                var isValid = true;
+                if (!$('#SecilenAdresId').val()) {
+                    $('#address input').each(function () {
+                        if ($(this).val() === '' && $(this).prop('required')) {
+                            isValid = false;
+                            $(this).addClass('is-invalid');
+                        }
+                    });
+                }
+                if (isValid) {
+                    $('#payment-tab').removeClass('disabled');
+                    $('#payment-tab').tab('show');
+                } else {
+                    alert('Lütfen tüm zorunlu adres bilgilerini doldurun.');
+                }
+            });
+
+            $('#backToAddress').click(function () {
+                $('#address-tab').tab('show');
+            });
+        });
+    </script>
+}

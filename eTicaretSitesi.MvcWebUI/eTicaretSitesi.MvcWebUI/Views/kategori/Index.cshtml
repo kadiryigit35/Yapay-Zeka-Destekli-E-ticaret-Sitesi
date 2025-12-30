@@ -1,0 +1,42 @@
+﻿@model IEnumerable<eTicaretSitesi.MvcWebUI.Entity.kategori>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<div class="container pb-5">
+    <h2>Kategori Listesi</h2>
+    <hr/>
+    <p>
+        @Html.ActionLink("Yeni Kategori", "Create", null, new { @class = "btn btn-primary" })
+    </p>
+    <hr/>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Adi)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Aciklama)
+            </th>
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Adi)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Aciklama)
+                </td>
+                <td style="text-align:center">
+                    @Html.ActionLink("Güncelle", "Edit", new { id = item.Id },new {@class="btn btn-primary btn-sm"}) 
+                    @Html.ActionLink("Sil", "Delete", new { id = item.Id }, new { @class = "btn btn-danger btn-sm" })
+                </td>
+            </tr>
+        }
+
+    </table>
+</div>

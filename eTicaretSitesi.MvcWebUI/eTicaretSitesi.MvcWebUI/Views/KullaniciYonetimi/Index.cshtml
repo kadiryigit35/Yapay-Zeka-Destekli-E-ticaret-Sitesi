@@ -1,0 +1,160 @@
+@{
+    ViewBag.Title = "Kullanýcý Yönetimi";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2 class="mt-4">Kullanýcýlar</h2>
+<p>Sistemdeki (admin rolü dýþýndaki) tüm kullanýcýlarý buradan yönetebilirsiniz.</p>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Kullanýcý Adý</th>
+                <th>Email</th>
+                <th>Roller</th>
+
+                <th>Durum</th>
+                <th style="width: 150px;">Ýþlemler</th>
+            </tr>
+        </thead>
+        <tbody id="kullanici-tablosu">
+            <tr><td colspan="5" class="text-center">Yükleniyor...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="banModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="banModalTitle">Kullanýcýyý Yasakla</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <input type="hidden" id="banUserId" />
+                <div class="form-group">
+                    <label for="banReason">Yasaklama Nedeni</label>
+                    <textarea class="form-control" id="banReason" rows="3" required></textarea>
+
+                </div>
+                <div class="form-group">
+                    <label for="banDuration">Yasaklama Süresi (Gün)</label>
+                    <input type="number" class="form-control" id="banDuration" placeholder="Kalýcý için boþ býrakýn">
+                </div>
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Ýptal</button>
+                <button type="button" class="btn btn-danger" onclick="confirmBan()">Yasakla</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // DÝKKAT: Buradaki port numarasýný kendi API projenizin port numarasý ile deðiþtirin!
+        const apiUrl = "https://localhost:44366";
+
+        function loadKullanicilar() {
+            $.ajax({
+                url: apiUrl + "/api/admin/kullanicilar",
+                type: "GET",
+                success: function (data) {
+                    let html = "";
+
+                    if (!data || data.length === 0) {
+                        html = '<tr><td colspan="5" class="text-center">Gösterilecek kullanýcý bulunamadý.</td></tr>';
+                    } else {
+                        $.each(data, function
+                            (index, user) {
+                            let roller = user.Roller.join(', ');
+                            let durum = user.BanliMi ? `<span class="badge badge-danger">Yasaklý</span>` : '<span class="badge badge-success">Aktif</span>';
+
+                            let banButton = user.BanliMi
+                                ? `<button class="btn btn-sm btn-success" onclick="unbanUser('${user.Id}', '${user.KullaniciAdi}')">Yasaðý Kaldýr</button>`
+                                : `<button class="btn btn-sm btn-danger" onclick="showBanModal('${user.Id}', '${user.KullaniciAdi}')">Yasakla</button>`;
+                            html += `<tr>
+                                            <td>${user.KullaniciAdi}</td>
+                                            <td>${user.Email}</td>
+
+                          <td>${roller}</td>
+                                            <td>${durum}</td>
+
+      <td>${banButton}</td>
+                                         </tr>`;
+                        });
+                    }
+                    $("#kullanici-tablosu").html(html);
+                },
+                error: function (err) {
+                    $("#kullanici-tablosu").html('<tr><td colspan="5" class="text-center text-danger">Veriler yüklenemedi. API baðlantýsýný ve yetkinizi kontrol edin.</td></tr>');
+                }
+            });
+        }
+
+        function showBanModal(userId, username) {
+            $('#banUserId').val(userId);
+            $('#banModalTitle').text(username + ' kullanýcýsýný yasakla');
+            $('#banReason').val('');
+            $('#banDuration').val('');
+            //$('#deleteComments').prop('checked', false); // Artýk bu element yok
+            $('#banModal').modal('show');
+        }
+
+        function confirmBan() {
+            const userId = $('#banUserId').val();
+            if (!$('#banReason').val()) {
+                alert('Yasaklama nedeni boþ býrakýlamaz.');
+                return;
+            }
+
+            // GÜNCELLENDÝ: YorumlariSil parametresi kaldýrýldý.
+            const banData = {
+                KullaniciId: userId,
+                Sebep: $('#banReason').val(),
+                SureGun: $('#banDuration').val() ?
+                    parseInt($('#banDuration').val()) : null
+            };
+            $.ajax({
+                url: apiUrl + "/api/admin/banla",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(banData),
+                success: function (response) {
+
+                    $('#banModal').modal('hide');
+                    alert(response.message);
+                    loadKullanicilar();
+                },
+                error: function () { alert("Hata: Yasaklama iþlemi baþarýsýz oldu."); }
+
+            });
+        }
+
+        function unbanUser(userId, username) {
+            if (confirm(username + " kullanýcýsýnýn yasaðýný kaldýrmak istediðinizden emin misiniz?")) {
+                $.ajax({
+                    url: apiUrl + `/api/admin/ban-kaldir/${userId}`,
+                    type: "POST",
+
+                    success: function (response) {
+                        alert(response.message);
+                        loadKullanicilar();
+                    },
+
+                    error: function () { alert("Hata: Yasak kaldýrma iþlemi baþarýsýz oldu."); }
+                });
+            }
+        }
+
+        $(document).ready(function () {
+            loadKullanicilar();
+        });
+    </script>
+}

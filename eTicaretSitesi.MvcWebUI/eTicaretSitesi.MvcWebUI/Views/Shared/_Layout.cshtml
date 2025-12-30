@@ -1,0 +1,110 @@
+﻿<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>eTicaret</title>
+
+    <script src="https://kit.fontawesome.com/f0dc84823d.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/style.css" />
+    <!-- YENİ: Karanlık tema CSS dosyası eklendi -->
+    <link rel="stylesheet" href="~/css/dark-theme.css" />
+    <link href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" rel="stylesheet" />
+
+    <!-- ESKİ: Inline <style> bloğu buradan kaldırıldı. -->
+
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand font-weight-bold text-primary" href="/">
+                <i class="fa-solid fa-bolt"></i> eTicaret
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01"
+                    aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarColor01">
+                <ul class="navbar-nav mr-auto font-weight-medium">
+                    <li class="nav-item @(ViewContext.RouteData.Values["action"].ToString() == "Index" ? "active" : "")">
+                        <a class="nav-link text-secondary" href="/">Anasayfa</a>
+                    </li>
+                    <li class="nav-item @(ViewContext.RouteData.Values["action"].ToString() == "UrunListesi" ? "active" : "")">
+                        <a class="nav-link text-secondary" href="/Home/UrunListesi">Ürünler</a>
+                    </li>
+                </ul>
+
+                <form class="form-inline mx-auto" action="/Home/UrunListesi" method="get" style="width: 50%; min-width: 300px;">
+                    <div class="input-group rounded shadow-sm" style="width: 100%;">
+                        <input id="searchInput" type="search" class="form-control border-0" placeholder="Ürün ara..."
+                               name="arama" autocomplete="off"
+                               value="@ViewBag.Arama"
+                               style="font-size: 1.1rem; padding: 10px 15px; border-radius: 50px;" />
+                        <div class="input-group-append">
+                            <button class="btn btn-primary rounded-circle" type="submit" style="width: 42px; height: 42px;">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <ul class="navbar-nav ml-auto d-flex flex-row align-items-center gap-3">
+                    @Html.Action("ozet", "sepet")
+                    @Html.Partial("_girisYapPartial")
+                </ul>
+            </div>
+
+            <!-- YENİ: Tema değiştirme butonu partial olarak eklendi -->
+            @Html.Partial("_ThemePartial")
+
+        </div>
+    </nav>
+
+    @RenderBody()
+
+    @if (!(ViewContext.RouteData.Values["controller"].ToString().ToLower() == "hesap" &&
+            (ViewContext.RouteData.Values["action"].ToString().ToLower() == "kayitol" ||
+             ViewContext.RouteData.Values["action"].ToString().ToLower() == "girisyap")))
+    {
+        @Html.Partial("_kai")
+    }
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js"></script>
+    <script src="/tema/js/holder.min.js"></script>
+    <script src="/js/kai.js"></script>
+
+    <script>
+        // Arama autocomplete
+        $(function () {
+            $("#searchInput").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        url: '/Home/UrunOneriler',
+                        dataType: 'json',
+                        data: { term: request.term },
+                        success: function (data) {
+                            response(data);
+                        }
+                    });
+                },
+                minLength: 2,
+                select: function (event, ui) {
+                    $("#searchInput").val(ui.item.value);
+                    $(this).closest("form").submit();
+                }
+            });
+        });
+
+        // ESKİ: Tema değiştirme scripti buradan kaldırıldı.
+
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

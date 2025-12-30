@@ -1,0 +1,72 @@
+﻿@model eTicaretSitesi.MvcWebUI.Entity.urun
+
+@{
+    ViewBag.Title = "Delete";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<div class="container pb-5">
+    <hr />
+    <h3>Ürünü Silmek İstediğinize Emin Misiniz?</h3>
+    <div>
+        <hr />
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => model.Resim)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Resim)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.Adi)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Adi)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.Aciklama)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Aciklama)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.Fiyat)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Fiyat)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.Stok)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Stok)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.Kategori.Adi)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Adi)
+            </dd>
+
+
+        </dl>
+
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="form-actions no-color">
+                @Html.ActionLink("Geri Dön", "Index", null, new { @class = "btn btn-warning" })
+                <input type="submit" value="Sil" class="btn btn-danger" />
+            </div>
+        }
+    </div>
+</div>

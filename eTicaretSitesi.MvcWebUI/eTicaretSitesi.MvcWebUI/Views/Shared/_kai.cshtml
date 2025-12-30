@@ -1,0 +1,489 @@
+﻿<div id="kai-bubble-toggle" title="Kai ile sohbet" aria-label="Sohbet panelini aç" role="button" tabindex="0">
+    <i class="fas fa-comments"></i>
+</div>
+
+<div id="kai-bubble-container" role="region" aria-label="Kai sohbet paneli" style="display:none;">
+    <div id="kai-bubble-header">
+        <span>🤖 Kai</span>
+        <div>
+            <a href="/Home/KaiChatPage" id="kai-bubble-fullscreen" title="Tam Ekran Sohbet" aria-label="Tam Ekran Sohbet">
+                <i class="fas fa-expand-arrows-alt"></i>
+            </a>
+            <button id="kai-bubble-close" title="Kapat" aria-label="Sohbet panelini kapat">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+    <div id="kai-bubble-body">
+        <div id="kai-bubble-messages" aria-live="polite" aria-relevant="additions">
+            <div class="kai"><strong>Kai:</strong><br />Merhaba! Size nasıl yardımcı olabilirim? 😊</div>
+        </div>
+        <div id="kai-bubble-input-container">
+            <input type="text" id="kai-bubble-input" placeholder="Bir şey yaz..." aria-label="Mesaj giriş alanı" autocomplete="off" />
+            <button id="kai-bubble-send" aria-label="Gönder"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggleBtn = document.getElementById("kai-bubble-toggle");
+        const chatbot = document.getElementById("kai-bubble-container");
+        const closeBtn = document.getElementById("kai-bubble-close");
+        const input = document.getElementById("kai-bubble-input");
+        const sendBtn = document.getElementById("kai-bubble-send");
+        const messages = document.getElementById("kai-bubble-messages");
+
+        let bubbleChatHistory = [
+            { role: "assistant", content: "Merhaba! Size nasıl yardımcı olabilirim? 😊" }
+        ];
+
+        if (!toggleBtn || !chatbot || !closeBtn || !input || !sendBtn || !messages) return;
+
+        const toggleChat = (show) => {
+            chatbot.style.display = show ? "flex" : "none";
+            toggleBtn.style.display = show ? "none" : "flex";
+            if (show) input.focus();
+        };
+
+        toggleBtn.addEventListener("click", () => toggleChat(true));
+        closeBtn.addEventListener("click", () => toggleChat(false));
+
+        function appendMessage(sender, htmlContent) {
+            const div = document.createElement("div");
+            div.className = sender === "Kai" ? "kai" : "user";
+            div.innerHTML = `<strong>${sender}:</strong><br/>${htmlContent.replace(/\n/g, '<br/>')}`;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function showLoading(show) {
+            let loading = messages.querySelector('.loading');
+            if (show) {
+                if (!loading) {
+                    loading = document.createElement("div");
+                    loading.className = "kai loading";
+                    loading.innerHTML = "<strong>Kai:</strong><br/><span></span><span></span><span></span>";
+                    messages.appendChild(loading);
+                    messages.scrollTop = messages.scrollHeight;
+                }
+            } else if (loading) {
+                loading.remove();
+            }
+        }
+
+        async function sendMessage() {
+            const text = input.value.trim();
+            if (!text) return;
+
+            appendMessage("Sen", text);
+            input.value = "";
+            showLoading(true);
+
+            bubbleChatHistory.push({ role: "user", content: text });
+            const apiUrl = "https://localhost:44366/api/kai/getreply"; // API Adresiniz
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        message: text,
+                        history: bubbleChatHistory.slice(0, -1)
+                    })
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const data = await response.json();
+                bubbleChatHistory.push({ role: "assistant", content: data.reply });
+                showLoading(false);
+
+                if (data.products && data.products.length > 0) {
+                    let productHtml = `
+                        <div class="product-carousel-container">
+                            <button class="carousel-nav prev">❮</button>
+                            <div class="product-carousel">
+                                <div class="product-track">
+                                    ${data.products.map(p => `
+                                        <div class="product-card">
+                                            <a href="${p.DetayUrl}" target="_blank" title="${p.Adi}">
+                                                <div class="product-image" style="background-image: url('${p.Resim || ''}')"></div>
+                                                <div class="product-info">
+                                                    <strong>${p.Adi}</strong>
+                                                    <span>${p.Fiyat} ₺</span>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    `).join("")}
+                                </div>
+                            </div>
+                            <button class="carousel-nav next">❯</button>
+                        </div>`;
+                    appendMessage("Kai", `${data.reply}<br/>${productHtml}`);
+
+                    setTimeout(() => {
+                        const lastMsg = messages.lastElementChild;
+                        if (!lastMsg) return;
+                        const carousel = lastMsg.querySelector(".product-carousel");
+                        const nextBtn = lastMsg.querySelector(".carousel-nav.next");
+                        const prevBtn = lastMsg.querySelector(".carousel-nav.prev");
+                        if (carousel && nextBtn && prevBtn) {
+                            nextBtn.onclick = () => carousel.scrollBy({ left: 160, behavior: 'smooth' });
+                            prevBtn.onclick = () => carousel.scrollBy({ left: -160, behavior: 'smooth' });
+                        }
+                    }, 100);
+                } else {
+                    appendMessage("Kai", data.reply);
+                }
+            } catch (error) {
+                showLoading(false);
+                appendMessage("Kai", "Bir hata oluştu, lütfen tekrar deneyin.");
+                console.error("API İsteği Hatası:", error);
+                bubbleChatHistory.pop();
+            }
+        }
+
+        input.addEventListener("keypress", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+        });
+        sendBtn.addEventListener("click", sendMessage);
+    });
+</script>
+
+<style>
+    :root {
+        --kai-primary: #007bff;
+        --kai-primary-dark: #0056b3;
+    }
+
+    #kai-bubble-toggle {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: var(--kai-primary);
+        color: #fff;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        font-size: 28px;
+        z-index: 10001;
+        transition: all 0.2s ease;
+    }
+
+        #kai-bubble-toggle:hover {
+            transform: scale(1.1);
+            background-color: var(--kai-primary-dark);
+        }
+
+    #kai-bubble-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 400px;
+        max-width: calc(100vw - 40px);
+        max-height: 70vh;
+        background: #f9f9f9;
+        border: 1px solid #ccc;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        font-size: 14px;
+        display: none;
+        flex-direction: column;
+        z-index: 10000;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    #kai-bubble-header {
+        background: var(--kai-primary);
+        color: white;
+        padding: 10px 15px;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 16px;
+    }
+
+        #kai-bubble-header span {
+            font-size: 1.1em;
+        }
+
+        #kai-bubble-header button, #kai-bubble-header a {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+            padding: 5px;
+            margin-left: 8px;
+        }
+
+            #kai-bubble-header button:hover, #kai-bubble-header a:hover {
+                opacity: 1;
+            }
+
+    #kai-bubble-body {
+        display: flex;
+        flex-direction: column;
+        height: 450px;
+    }
+
+    #kai-bubble-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 10px;
+        font-size: 14px;
+        background: #ffffff;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #kai-bubble-input-container {
+        border-top: 1px solid #ccc;
+        padding: 10px;
+        display: flex;
+        background: #f9f9f9;
+    }
+
+    #kai-bubble-input {
+        border: 1px solid #ddd;
+        padding: 10px;
+        width: 100%;
+        outline: none;
+        font-size: 14px;
+        border-radius: 20px;
+        margin-right: 10px;
+    }
+
+    #kai-bubble-send {
+        background: var(--kai-primary);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+        #kai-bubble-send:hover {
+            background: var(--kai-primary-dark);
+        }
+
+    .kai, .user {
+        padding: 10px 14px;
+        margin-bottom: 8px;
+        border-radius: 18px;
+        max-width: 85%;
+        line-height: 1.5;
+        box-sizing: border-box;
+    }
+
+    .kai {
+        background-color: #e9f0ff;
+        align-self: flex-start;
+        border-bottom-left-radius: 4px;
+    }
+
+    .user {
+        background-color: #dcf8c6;
+        align-self: flex-end;
+        border-bottom-right-radius: 4px;
+    }
+
+        .kai strong, .user strong {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 600;
+            color: #333;
+        }
+
+    .kai.loading span {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: var(--kai-primary);
+        margin: 0 2px;
+        animation: kai-loading-dots 1s infinite ease-in-out;
+    }
+
+        .kai.loading span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .kai.loading span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+    @@keyframes kai-loading-dots {
+        0%, 100% {
+            opacity: 0.3;
+            transform: scale(0.7);
+        }
+
+        50% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .product-carousel-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        max-width: 320px;
+        margin-top: 10px;
+    }
+
+    .carousel-nav {
+        background: rgba(255,255,255,0.8);
+        border: 1px solid #ddd;
+        border-radius: 50%;
+        font-size: 16px;
+        cursor: pointer;
+        color: var(--kai-primary);
+        width: 28px;
+        height: 28px;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+        .carousel-nav.prev {
+            left: -10px;
+        }
+
+        .carousel-nav.next {
+            right: -10px;
+        }
+
+    .product-carousel {
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        display: flex;
+        flex: 1;
+        padding: 5px 0;
+    }
+
+        .product-carousel::-webkit-scrollbar {
+            height: 5px;
+        }
+
+        .product-carousel::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 5px;
+        }
+
+    .product-track {
+        display: flex;
+        gap: 10px;
+    }
+
+    .product-card {
+        flex: 0 0 auto;
+        width: 140px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+        .product-card a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+    .product-image {
+        width: 100%;
+        height: 100px;
+        background-size: cover;
+        background-position: center;
+        border-bottom: 1px solid #eee;
+    }
+
+    .product-info {
+        font-size: 12px;
+        padding: 8px;
+        height: 55px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+        .product-info strong {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 13px;
+        }
+
+        .product-info span {
+            color: var(--kai-primary);
+            font-weight: bold;
+        }
+
+    /* =================== DARK TEMA =================== */
+    body.dark-theme #kai-bubble-toggle {
+        background-color: var(--kai-primary-dark);
+    }
+
+    body.dark-theme #kai-bubble-container {
+        background: #1f1f1f;
+        border-color: #3a3a3a;
+        color: #e0e0e0;
+    }
+
+    body.dark-theme #kai-bubble-header {
+        background: #004d99;
+    }
+
+    body.dark-theme #kai-bubble-messages {
+        background: #121212;
+    }
+
+    body.dark-theme #kai-bubble-input-container {
+        background: #1f1f1f;
+        border-color: #3a3a3a;
+    }
+
+    body.dark-theme #kai-bubble-input {
+        background-color: #2a2a2a;
+        color: #e0e0e0;
+        border-color: #555;
+    }
+
+    body.dark-theme .kai {
+        background-color: #2a2d31;
+    }
+
+    body.dark-theme .user {
+        background-color: #007bff;
+    }
+
+        body.dark-theme .kai strong, body.dark-theme .user strong {
+            color: #e0e0e0;
+        }
+
+    body.dark-theme .product-card {
+        background: #2c2c2c;
+        border-color: #444;
+    }
+</style>

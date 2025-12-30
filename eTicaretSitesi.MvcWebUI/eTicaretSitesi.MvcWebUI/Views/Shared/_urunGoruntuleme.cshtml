@@ -1,0 +1,33 @@
+﻿@model eTicaretSitesi.MvcWebUI.Models.urunModel
+
+<div class="card shadow-sm border-0 rounded-3 w-100 h-100 d-flex flex-column">
+    <a href="/home/detaylar/@Model.Id" class="position-relative text-decoration-none text-dark">
+        <img src="~/Upload/@(Model.Resim ?? "default.jpg")"
+             class="card-img-top rounded-top-3 img-fluid product-image"
+             alt="@Model.Adi"
+             style="max-height: 200px; object-fit: contain;" />
+    </a>
+
+    <div class="card-body d-flex flex-column">
+        <a href="/home/detaylar/@Model.Id" class="text-decoration-none text-dark">
+            <h5 class="card-title text-truncate mb-1" title="@Model.Adi">@Model.Adi</h5>
+        </a>
+
+        <a href="/home/detaylar/@Model.Id" class="text-decoration-none text-muted">
+            <p class="card-text small flex-grow-1" style="min-height: 50px;">
+                @(Model.Aciklama?.Length > 80 ? Model.Aciklama.Substring(0, 77) + "..." : Model.Aciklama)
+            </p>
+        </a>
+
+        <div class="mt-auto d-flex justify-content-between align-items-center">
+            <a href="/home/detaylar/@Model.Id" class="text-decoration-none text-primary fs-5">
+                <i class="fa-solid fa-turkish-lira-sign"></i> @Model.Fiyat.ToString("N2")
+            </a>
+
+            <a href="/home/detaylar/@Model.Id"
+               class="btn btn-outline-primary btn-sm rounded-pill">
+                <i class="fa fa-eye"></i> İncele
+            </a>
+        </div>
+    </div>
+</div>

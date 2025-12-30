@@ -1,0 +1,66 @@
+﻿@model eTicaretSitesi.MvcWebUI.Entity.urun
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<div class="container pb-5">
+    <hr />
+    <h2>Ürün Detayları</h2>
+
+    <div>
+        <hr />
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => model.Resim)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Resim)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.Adi)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Adi)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.Aciklama)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Aciklama)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.Fiyat)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Fiyat)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.Stok)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Stok)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.Kategori.Adi)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Adi)
+            </dd>
+        </dl>
+    </div>
+    <p>
+        @Html.ActionLink("Geri Dön", "Index", null, new { @class = "btn btn-warning" })
+        @Html.ActionLink("Düzenle", "Edit", new { id = Model.Id }, new { @class = "btn btn-primary" })
+    </p>
+
+</div>

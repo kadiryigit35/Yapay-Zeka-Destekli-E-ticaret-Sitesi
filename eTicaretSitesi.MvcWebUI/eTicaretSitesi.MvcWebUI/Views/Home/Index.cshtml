@@ -1,0 +1,143 @@
+﻿@using eTicaretSitesi.MvcWebUI.Models
+@model IEnumerable<urunModel>
+
+@{
+    ViewBag.Title = "Ana Sayfa";
+    var populer = (List<urunModel>)ViewBag.PopulerUrunler ?? new List<urunModel>();
+    var onerilen = (List<urunModel>)ViewBag.OnerilenUrunler ?? new List<urunModel>();
+}
+
+<!-- Jumbotron -->
+<div id="customJumbotron" class="jumbotron jumbotron-fluid bg-dark text-white mb-0">
+    <div class="container">
+        <div class="row align-items-center py-4">
+            <div class="col-md-8 col-12 text-center">
+                <img class="img-fluid rounded" src="~/Upload/kasa-monitor-orta.png" alt="Efsane İndirimler" style="max-height: 300px;" />
+            </div>
+            <div class="col-md-4 col-12 text-center">
+                <h1 class="display-4 fw-bold">SÜPER İNDİRİM</h1>
+                <p class="lead">Şahane fiyatlar, sınırlı stok ürünler için hemen alışverişe başla!</p>
+                <a href="/home/urunlistesi" class="btn btn-primary btn-lg mt-2">Tüm Ürünleri Gör</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ürün Slider Alanları -->
+@helper UrunSlider(string baslik, List<urunModel> urunler, string id)
+{
+    <div class="container py-4">
+        <h3 class="mb-3">@baslik</h3>
+        <div class="position-relative">
+            <button class="scroll-btn left" data-target="#@id"><i class="fa fa-chevron-left"></i></button>
+            <div id="@id" class="scroll-container d-flex overflow-hidden">
+                @foreach (var urun in urunler)
+                {
+                    <div class="scroll-item me-3">
+                        @Html.Partial("~/Views/Shared/_urunGoruntuleme.cshtml", urun)
+                    </div>
+                }
+            </div>
+            <button class="scroll-btn right" data-target="#@id"><i class="fa fa-chevron-right"></i></button>
+        </div>
+    </div>
+}
+
+@if (populer.Any())
+{
+    @UrunSlider("Popüler Ürünler", populer, "populerSlider")
+}
+@if (onerilen.Any())
+{
+    @UrunSlider("Senin İçin Önerdiklerimiz", onerilen, "onerilenSlider")
+}
+@UrunSlider("Diğer Ürünlerimiz", Model.ToList(), "digerSlider")
+
+<!-- Markalar -->
+<div class="container py-5">
+    <h3 class="mb-3">Markalar</h3>
+    <div class="position-relative">
+        <button class="scroll-btn left" data-target="#markaSlider"><i class="fa fa-chevron-left"></i></button>
+        <div id="markaSlider" class="scroll-container d-flex overflow-hidden">
+            @foreach (var marka in (List<eTicaretSitesi.MvcWebUI.Entity.satici>)ViewBag.Markalar)
+            {
+                <div class="scroll-item text-center">
+                    <a href="@Url.Action("Profil", "Satici", new { id = marka.Id })" class="text-decoration-none d-block">
+                        <img src="~/Upload/@(string.IsNullOrEmpty(marka.Resim) ? "default.png" : marka.Resim)"
+                             alt="@marka.Adi"
+                             title="@marka.Adi"
+                             style="height: 100px; object-fit: contain;"
+                             class="img-fluid rounded shadow-sm p-2 bg-white w-100" />
+                        <div class="mt-2 fw-bold text-dark">@marka.Adi</div>
+                    </a>
+                </div>
+            }
+        </div>
+        <button class="scroll-btn right" data-target="#markaSlider"><i class="fa fa-chevron-right"></i></button>
+    </div>
+</div>
+
+
+<!-- CSS -->
+<style>
+    .scroll-container {
+        scroll-behavior: smooth;
+        overflow-x: auto;
+        display: flex;
+        gap: 1rem;
+        padding-bottom: 10px;
+    }
+
+    .scroll-item {
+        flex: 0 0 auto;
+        width: 300px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .scroll-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: white;
+        border: 1px solid #ccc;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        z-index: 2;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    }
+
+        .scroll-btn.left {
+            left: -20px;
+        }
+
+        .scroll-btn.right {
+            right: -20px;
+        }
+
+    .card-img-top {
+        max-height: 200px;
+        object-fit: contain;
+    }
+</style>
+
+<!-- JavaScript -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".scroll-btn").forEach(btn => {
+            btn.addEventListener("click", function () {
+                const container = document.querySelector(this.dataset.target);
+                const scrollAmount = 320;
+                container.scrollBy({
+                    left: this.classList.contains("right") ? scrollAmount : -scrollAmount,
+                    behavior: "smooth"
+                });
+            });
+        });
+    });
+</script>

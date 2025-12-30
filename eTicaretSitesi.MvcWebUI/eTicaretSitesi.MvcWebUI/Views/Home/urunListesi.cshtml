@@ -1,0 +1,119 @@
+﻿@using eTicaretSitesi.MvcWebUI.Models
+@model IEnumerable<urunModel>
+
+@{
+    ViewBag.Title = "Ürün Listesi";
+
+    // Controller'dan gönderilen seçili ID listelerini alıyoruz.
+    List<int> secilenKategoriler = ViewBag.KategoriIds as List<int> ?? new List<int>();
+    List<int> secilenSaticilar = ViewBag.SaticiIds as List<int> ?? new List<int>();
+    double? min = ViewBag.Min as double?;
+    double? max = ViewBag.Max as double?;
+
+    var kategoriler = ViewBag.Kategoriler as List<eTicaretSitesi.MvcWebUI.Entity.kategori>;
+    var saticilar = ViewBag.Saticilar as List<eTicaretSitesi.MvcWebUI.Entity.satici>;
+}
+
+<div class="container pb-5 mt-4">
+    <div class="row gx-4 gy-4">
+        <div class="col-lg-3">
+            <form method="get" action="@Url.Action("UrunListesi", "Home")">
+                @if (!string.IsNullOrEmpty(ViewBag.Arama as string))
+                {
+                    <input type="hidden" name="arama" value="@ViewBag.Arama" />
+                }
+
+                <div class="d-flex flex-column gap-3">
+                    <div class="card shadow-sm rounded-3">
+                        <div class="card-header bg-primary text-white">
+                            <i class="fa fa-list"></i> Kategoriler
+                        </div>
+                        <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                            @foreach (var k in kategoriler)
+                            {
+                                var checkedAttr = secilenKategoriler.Contains(k.Id) ? "checked" : "";
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="kategoriIds" value="@k.Id" id="kategori_@k.Id" @checkedAttr />
+                                    <label class="form-check-label" for="kategori_@k.Id">@k.Adi</label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm rounded-3">
+                        <div class="card-header bg-secondary text-white">
+                            <i class="fa fa-filter"></i> Fiyat Filtresi
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="min" class="form-label">Min Fiyat</label>
+                                <input type="number" name="min" id="min" class="form-control" value="@(min?.ToString() ?? "")" placeholder="Örn: 100" min="0" step="0.01" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="max" class="form-label">Max Fiyat</label>
+                                <input type="number" name="max" id="max" class="form-control" value="@(max?.ToString() ?? "")" placeholder="Örn: 1000" min="0" step="0.01" />
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (saticilar != null && saticilar.Any())
+                    {
+                        <div class="card shadow-sm rounded-3">
+                            <div class="card-header bg-info text-white">
+                                <i class="fa fa-tags"></i> Markalar
+                            </div>
+                            <div class="card-body">
+                                <div style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 8px; border-radius: 4px;">
+                                    @foreach (var s in saticilar)
+                                    {
+                                        var checkedAttr = secilenSaticilar.Contains(s.Id) ? "checked" : "";
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="saticiIds" value="@s.Id" id="satici_@s.Id" @checkedAttr />
+                                            <label class="form-check-label" for="satici_@s.Id">@s.Adi</label>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                <div class="card shadow-sm rounded-3">
+                    <div class="card-body text-center">
+                        <button type="submit" class="btn btn-success fw-bold px-4">
+                            <i class="fa fa-check"></i> Filtreleri Uygula
+                        </button>
+
+                        <div class="mt-2">
+                            <a href="@Url.Action("UrunListesi", "Home", new { arama = ViewBag.Arama })" class="btn btn-link text-danger text-decoration-none">
+                                <i class="fa fa-times"></i> Filtreleri Temizle
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+
+                </div>
+            </form>
+        </div>
+
+        <div class="col-lg-9">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-warning text-center py-4 shadow-sm">
+                    <i class="fa fa-exclamation-circle"></i> Bu kriterlere uygun ürün bulunamadı.
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    @foreach (var urun in Model)
+                    {
+                        <div class="col-md-4 col-sm-6 mb-4">
+                            @Html.Partial("~/Views/Shared/_urungoruntuleme.cshtml", urun)
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

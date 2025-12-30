@@ -1,0 +1,54 @@
+﻿@model eTicaretSitesi.MvcWebUI.Models.girisYap
+
+@{
+    ViewBag.Title = "Kullanıcı Girişi";
+}
+
+<div class="container mt-5 pb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm rounded-3 border-0">
+                <div class="card-body">
+                    <h3 class="text-center mb-4 text-primary">
+                        <i class="fa-solid fa-user"></i> Kullanıcı Girişi
+                    </h3>
+
+                    @using (Html.BeginForm())
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
+
+                        <div class="mb-3">
+                            @Html.LabelFor(model => model.KullaniciAdi, htmlAttributes: new { @class = "form-label" })
+                            @Html.EditorFor(model => model.KullaniciAdi, new { htmlAttributes = new { @class = "form-control", @placeholder = "Kullanıcı Adı" } })
+                            @Html.ValidationMessageFor(model => model.KullaniciAdi, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <div class="mb-3">
+                            @Html.LabelFor(model => model.Sifre, htmlAttributes: new { @class = "form-label" })
+                            @Html.EditorFor(model => model.Sifre, new { htmlAttributes = new { @class = "form-control", @placeholder = "Şifre", type = "password" } })
+                            @Html.ValidationMessageFor(model => model.Sifre, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fa-solid fa-right-to-bracket"></i> Giriş Yap
+                            </button>
+                        </div>
+                    }
+
+                    <div class="text-center">
+                        <a href="@Url.Action("SifreSifirla", "hesap")" class="btn btn-link text-decoration-none">
+                            <i class="fa-solid fa-key"></i> Şifremi Unuttum
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
