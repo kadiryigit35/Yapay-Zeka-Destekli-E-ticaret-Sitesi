@@ -131,8 +131,8 @@ Uygulamayı ve API'yi derleyip çalıştırmak için:
 
 Proje dizinindeki .sln (Solution) dosyasını Visual Studio ile açın.
 
-İlgili projeye sağ tıklayıp "Manage NuGet Packages" diyerek eksik paketleri (Restore) yükleyin.
-
-Web.config dosyası içerisindeki ConnectionString (Veritabanı bağlantı dizesi) bölümünü kendi yerel SQL Server bilgilerinize göre güncelleyin.
+Çözüm (Solution) üzerine sağ tıklayıp "Restore NuGet Packages" (veya "Manage NuGet Packages" üzerinden eksikleri indir) diyerek gerekli paketleri yükleyin.
 
 F5 tuşuna basarak (veya üst menüden Start diyerek) projeyi başlatın.
+
+Not: Proje ilk çalıştığında, yapılandırdığınız bağlantı dizesine (Connection String) göre veritabanı ve tablolar otomatik olarak SQL Server üzerinde oluşturulacaktır.
