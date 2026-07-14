@@ -106,6 +106,7 @@ Platform, gücünü sağlam ve iyi yapılandırılmış bir API altyapısından 
 
 - **Backend / API:** C#, .NET Framework 4.7.2
 - **Frontend / Kullanıcı Arayüzü:** HTML, CSS, JavaScript (Mobil Uyumlu Tasarım)
+- **Mobil:** Flutter / Dart (Cross-Platform)
 - **Veritabanı:** MS SQL Server (SQL Server Management Studio 21)
 - **Yapay Zeka:** Doğal Dil İşleme altyapısı (Kai)
 
