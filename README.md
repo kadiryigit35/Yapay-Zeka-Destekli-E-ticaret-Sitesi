@@ -119,12 +119,12 @@ Projeyi yerel ortamınızda (local) çalıştırmak için aşağıdaki adımlar�
 git clone [https://github.com/kadiryigit35/Yapay-Zeka-Destekli-E-ticaret-Sitesi.git](https://github.com/kadiryigit35/Yapay-Zeka-Destekli-E-ticaret-Sitesi.git)
 cd Yapay-Zeka-Destekli-E-ticaret-Sitesi
 ```
-### 2. Veritabanı Kurulumu
-Projenin veritabanını ayağa kaldırmak için:
+### 2. Veritabanı Yapılandırması
+Projede DataContext kullanıldığı için veritabanı manuel script çalıştırmanıza gerek kalmadan otomatik olarak oluşturulmaktadır.
 
-SQL Server Management Studio 21'i (SSMS) açın.
+Proje dizinindeki Web.config dosyasını açın.
 
-Proje dizininde yer alan .sql uzantılı veritabanı yedeğini (script dosyasını) SSMS üzerinden çalıştırarak tabloları oluşturun.
+ConnectionString (Veritabanı bağlantı dizesi) bölümünü kendi yerel SQL Server bilgilerinize göre güncelleyin.
 
 ### 3. Projeyi Başlatma
 Uygulamayı ve API'yi derleyip çalıştırmak için:
