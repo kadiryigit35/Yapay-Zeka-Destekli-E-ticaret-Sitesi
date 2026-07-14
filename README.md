@@ -67,9 +67,9 @@ Platform, hem **Web** hem de **Mobil** cihazlar için tam uyumlu (responsive) ol
 
 ### 📱 Mobil Uygulama Arayüzü
 
-| Mobil Ana Sayfa | Mobil Ürünler | Mobil Ürün Detayı |
+| Mobil Ana Sayfa | Profil Menüsü | Mobil Ürün Detayı |
 | :---: | :---: | :---: |
-| <img src="https://github.com/user-attachments/assets/6ccff3d2-e158-446e-9031-007d45a71a68" width="200" /> | <img src="https://github.com/user-attachments/assets/a4aecd4a-c6b4-4b7c-b015-e2b528c5294e" width="200" /> | <img src="https://github.com/user-attachments/assets/f0163ff4-e346-45e8-a73b-18d1413832c8" width="200" /> |
+| <img src="https://github.com/user-attachments/assets/6ccff3d2-e158-446e-9031-007d45a71a68" width="200" /> | | <img src="https://github.com/user-attachments/assets/f0163ff4-e346-45e8-a73b-18d1413832c8" width="200" /> |
 
 | Mobil Kai Chat | Mobil Sepet | Mobil Giriş Yap |
 | :---: | :---: | :---: |
@@ -79,9 +79,9 @@ Platform, hem **Web** hem de **Mobil** cihazlar için tam uyumlu (responsive) ol
 <summary><b>Diğer Mobil Sayfaları Görmek İçin Tıklayın</b></summary>
 <br>
 
-| Profil Menüsü | Siparişlerim | Favoriler |
+| Mobil Ürünler | Siparişlerim | Favoriler |
 | :---: | :---: | :---: |
-| <img src="https://github.com/user-attachments/assets/a2985138-8243-418b-ae9a-fe07c913aed3" width="200" /> | <img src="https://github.com/user-attachments/assets/5c5e8441-70ec-4403-ae9f-eee2868d82e6" width="200" /> | <img src="https://github.com/user-attachments/assets/91594ea9-cd29-49bb-b055-2830c2891b87" width="200" /> |
+| <img src="https://github.com/user-attachments/assets/a4aecd4a-c6b4-4b7c-b015-e2b528c5294e" width="200" />  | <img src="https://github.com/user-attachments/assets/5c5e8441-70ec-4403-ae9f-eee2868d82e6" width="200" /> | <img src="https://github.com/user-attachments/assets/91594ea9-cd29-49bb-b055-2830c2891b87" width="200" /> |
 
 | Kayıtlı Adreslerim | Kayıtlı Kartlarım | Profil Düzenle |
 | :---: | :---: | :---: |
