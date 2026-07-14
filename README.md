@@ -115,9 +115,9 @@ Projeyi yerel ortamınızda (local) çalıştırmak için aşağıdaki adımlar�
 
 ### 1. Depoyu Klonlayın
 Öncelikle proje dosyalarını bilgisayarınıza indirin:
-
+```bash
 git clone [https://github.com/kadiryigit35/Yapay-Zeka-Destekli-E-ticaret-Sitesi.git](https://github.com/kadiryigit35/Yapay-Zeka-Destekli-E-ticaret-Sitesi.git)
-cd Yapay-Zeka-Destekli-E-ticaret-Sitesi 
+cd Yapay-Zeka-Destekli-E-ticaret-Sitesi
 
 ### 2. Veritabanı Kurulumu
 Projenin veritabanını ayağa kaldırmak için:
