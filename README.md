@@ -9,7 +9,7 @@
 
 Bu proje, geleneksel e-ticaret altyapısını yapay zeka teknolojileriyle harmanlayarak hem müşteriler hem de satıcılar için optimize edilmiş bir alışveriş platformu sunmaktadır. Gelişmiş yapay zeka asistanı **Kai**, kullanıcıların doğal dille ürün aramasına, sorular sormasına ve alışveriş sürecini interaktif bir şekilde yönetmesine olanak tanır. 
 
-Platform, hem **Web** hem de **Mobil** cihazlar için tam uyumlu (responsive) olarak tasarlanmış olup, güçlü bir API mimarisi ile desteklenmektedir.
+Platform, hem **Web** hem de **Mobil** cihazlar için tam uyumlu (responsive) olarak tasarlanmış olup, .NET altyapısı ve güçlü bir API mimarisi ile desteklenmektedir.
 
 ## ✨ Öne Çıkan Özellikler
 
@@ -93,7 +93,7 @@ Platform, hem **Web** hem de **Mobil** cihazlar için tam uyumlu (responsive) ol
 
 ### ⚙️ API ve Arka Plan
 
-Platform, gücünü sağlam ve iyi dokümante edilmiş bir API altyapısından alır.
+Platform, gücünü sağlam ve iyi yapılandırılmış bir API altyapısından alır.
 
 <div align="center">
   <img src="https://github.com/user-attachments/assets/1570f6cd-9eb8-4745-ba4e-b12eec8fb690" alt="API Arayüzü" width="800" />
@@ -104,17 +104,17 @@ Platform, gücünü sağlam ve iyi dokümante edilmiş bir API altyapısından a
 
 ## 🛠️ Kullanılan Teknolojiler
 
-*(Burayı projende kullandığın net teknolojilere göre düzenleyebilirsin)*
-
-- **Frontend / Mobil:** Flutter / Dart (Cross-Platform)
-- **Backend:** Python, API Altyapısı (FastAPI/Django/Flask)
-- **Yapay Zeka:** Yerel modeller veya API destekli Doğal Dil İşleme altyapısı (Kai)
-- **Veritabanı:** PostgreSQL / MySQL / SQLite
+- **Backend / API:** C#, .NET Framework 4.7.2
+- **Frontend / Kullanıcı Arayüzü:** HTML, CSS, JavaScript (Mobil Uyumlu Tasarım)
+- **Veritabanı:** MS SQL Server (SQL Server Management Studio 21)
+- **Yapay Zeka:** Doğal Dil İşleme altyapısı (Kai)
 
 ## 🚀 Kurulum ve Çalıştırma
 
-Projeyi kendi ortamınızda çalıştırmak için aşağıdaki adımları izleyebilirsiniz:
+Projeyi yerel ortamınızda (local) çalıştırmak için aşağıdaki adımları sırasıyla izleyin.
 
-1. **Depoyu klonlayın:**
-   ```bash
-   git clone [https://github.com/kadiryigit35/Yapay-Zeka-Destekli-E-ticaret-Sitesi.git](https://github.com/kadiryigit35/Yapay-Zeka-Destekli-E-ticaret-Sitesi.git)
+### 1. Depoyu Klonlayın
+Öncelikle proje dosyalarını bilgisayarınıza indirin:
+```bash
+git clone [https://github.com/kadiryigit35/Yapay-Zeka-Destekli-E-ticaret-Sitesi.git](https://github.com/kadiryigit35/Yapay-Zeka-Destekli-E-ticaret-Sitesi.git)
+cd Yapay-Zeka-Destekli-E-ticaret-Sitesi
